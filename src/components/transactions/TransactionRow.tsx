@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { ArrowDownLeft, ArrowUpRight, Pencil, Trash2 } from 'lucide-react';
 import type { Transaction } from '@/types';
 import { Badge } from '@/components/ui/Badge';
@@ -11,10 +10,10 @@ interface TransactionRowProps {
   compact?: boolean;
 }
 
-export const TransactionRow = memo(function TransactionRow({ tx, onEdit, onDelete, compact }: TransactionRowProps) {
+export function TransactionRow({ tx, onEdit, onDelete, compact }: TransactionRowProps) {
   const isIncome = tx.type === 'income';
   return (
-    <div className="group flex items-center gap-3 py-3 px-1 border-b border-white/5 last:border-0 cv-auto">
+    <div className="group flex items-center gap-3 py-3 px-1 border-b border-white/5 last:border-0">
       <div className={`leather-emboss-icon w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${isIncome ? 'text-olive-400' : 'text-tan-300'}`}>
         {isIncome ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
       </div>
@@ -35,4 +34,4 @@ export const TransactionRow = memo(function TransactionRow({ tx, onEdit, onDelet
       )}
     </div>
   );
-});
+}
