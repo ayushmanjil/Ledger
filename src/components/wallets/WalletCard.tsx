@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Wallet as WalletIcon, Landmark, Smartphone, CreditCard, PiggyBank, Star, Trash2 } from 'lucide-react';
 import { LeatherCard } from '@/components/ui/LeatherCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -9,7 +10,7 @@ const TYPE_ICON: Record<string, any> = {
   cash: WalletIcon, bank: Landmark, upi: Smartphone, credit_card: CreditCard, savings: PiggyBank, custom: Star,
 };
 
-export function WalletCard({ wallet, spent, onDelete }: {
+export const WalletCard = memo(function WalletCard({ wallet, spent, onDelete }: {
   wallet: Wallet;
   spent: number;
   onDelete: (w: Wallet) => void;
@@ -53,5 +54,5 @@ export function WalletCard({ wallet, spent, onDelete }: {
       )}
     </LeatherCard>
   );
-}
+});
 

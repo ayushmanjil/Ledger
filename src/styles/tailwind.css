@@ -178,4 +178,8 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 52px;
+  }
 }
