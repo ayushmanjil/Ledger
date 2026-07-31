@@ -11,6 +11,11 @@ import { TransactionModal } from '@/components/transactions/TransactionModal';
 import { AddFullDayModal } from '@/components/transactions/AddFullDayModal';
 import { cn } from '@/utils/cn';
 
+/** True once, at module load — avoids per-render matchMedia calls. */
+const isTouch =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(pointer: coarse)').matches;
+
 export function AppShell({ title, children, actions }: { title: string; children: ReactNode; actions?: ReactNode }) {
   const location = useLocation();
   const { activeModal, openModal, closeModal, setSidebarOpen } = useUIStore();
@@ -98,18 +103,26 @@ export function AppShell({ title, children, actions }: { title: string; children
                 </div>
               )}
 
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={location.pathname}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="flex-1 flex flex-col min-h-0 w-full"
-                >
+              {isTouch ? (
+                /* On touch/mobile: plain div — zero JS animation, no will-change,
+                   instant page switches feel snappier than a 200ms JS fade. */
+                <div key={location.pathname} className="flex-1 flex flex-col min-h-0 w-full">
                   {children}
-                </motion.div>
-              </AnimatePresence>
+                </div>
+              ) : (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={location.pathname}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className="flex-1 flex flex-col min-h-0 w-full"
+                  >
+                    {children}
+                  </motion.div>
+                </AnimatePresence>
+              )}
             </main>
           </div>
         </div>

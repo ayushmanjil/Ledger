@@ -18,6 +18,8 @@
     /* No blur on mobile — pure GPU cost with negligible visual benefit. */
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    /* No force-promoted compositor layer on mobile — reduces memory & repaint cost. */
+    transform: none;
   }
 }
 
