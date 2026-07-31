@@ -4,6 +4,7 @@ import {
 import { db } from './config';
 import { fetchOwnedDocs, tsToIso } from './utils';
 import type { Transaction, TransactionType } from '@/types';
+import { sortTransactionsLatestFirst } from '@/utils/format';
 
 interface TransactionDoc {
   userId: string;
@@ -51,9 +52,8 @@ function allocatedDelta(type: TransactionType, amount: number): number {
 export const transactionsService = {
   async listByUser(uid: string): Promise<Transaction[]> {
     const docs = await fetchOwnedDocs('transactions', uid);
-    return docs
-      .map((d) => toTransaction(d.id, d.data() as TransactionDoc))
-      .sort((a, b) => (a.date === b.date ? b.id.localeCompare(a.id) : b.date.localeCompare(a.date)));
+    const list = docs.map((d) => toTransaction(d.id, d.data() as TransactionDoc));
+    return sortTransactionsLatestFirst(list);
   },
 
   async create(uid: string, input: {

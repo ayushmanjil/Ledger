@@ -16,7 +16,7 @@ const emptyRow = (walletId?: string): RowValue => ({ name: '', category: EXPENSE
 
 export function AddFullDayModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { wallets, addFullDayTransactions } = useFinanceStore();
-  const { register, control, handleSubmit, reset, formState: { isSubmitting } } = useForm<FormValues>({
+  const { register, control, handleSubmit, reset, watch, formState: { isSubmitting } } = useForm<FormValues>({
     defaultValues: { date: todayISO(), rows: Array.from({ length: 5 }, () => emptyRow()) },
   });
   const { fields, append, remove } = useFieldArray({ control, name: 'rows' });
@@ -39,9 +39,9 @@ export function AddFullDayModal({ open, onClose }: { open: boolean; onClose: () 
       toast('Add at least one valid expense row', 'error');
       return;
     }
-    await addFullDayTransactions(values.date, rows);
-    toast(`${rows.length} expenses added for the day`, 'success');
     onClose();
+    toast(`${rows.length} expenses added for the day`, 'success');
+    addFullDayTransactions(values.date, rows).catch((err) => toast(`Failed to save expenses: ${err.message}`, 'error'));
   };
 
   return (
@@ -49,7 +49,7 @@ export function AddFullDayModal({ open, onClose }: { open: boolean; onClose: () 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <label className="text-xs uppercase tracking-wide text-cream-50/60 font-medium">Date</label>
-          <Input type="date" className="w-48" {...register('date', { required: true })} />
+          <Input type="date" className="w-48" value={watch('date')} {...register('date', { required: true })} />
         </div>
 
         <div className="overflow-x-auto rounded-xl border border-white/10">

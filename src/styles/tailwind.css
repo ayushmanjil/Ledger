@@ -62,47 +62,49 @@
      No gradients — clean luxury solid background colors
   ───────────────────────────────────────────────────────────────────────── */
 
-  /* Imperial Velvet (Maroon theme) */
-  html.mode-glass body,
-  html.mode-glass.theme-maroon body {
-    background-color: #14091a !important;
-    background-image: none !important;
-  }
+  @media (min-width: 1024px) {
+    /* Imperial Velvet (Maroon theme) */
+    html.mode-glass body,
+    html.mode-glass.theme-maroon body {
+      background-color: #14091a !important;
+      background-image: none !important;
+    }
 
-  /* Sapphire Reserve (Navy theme) */
-  html.mode-glass.theme-navy body {
-    background-color: #081020 !important;
-    background-image: none !important;
-  }
+    /* Sapphire Reserve (Navy theme) */
+    html.mode-glass.theme-navy body {
+      background-color: #081020 !important;
+      background-image: none !important;
+    }
 
-  /* Emerald Solstice (Olive theme) */
-  html.mode-glass.theme-olive body {
-    background-color: #071510 !important;
-    background-image: none !important;
-  }
+    /* Emerald Solstice (Olive theme) */
+    html.mode-glass.theme-olive body {
+      background-color: #071510 !important;
+      background-image: none !important;
+    }
 
-  /* Obsidian Noir (Charcoal theme) */
-  html.mode-glass.theme-charcoal body {
-    background-color: #08080a !important;
-    background-image: none !important;
-  }
+    /* Obsidian Noir (Charcoal theme) */
+    html.mode-glass.theme-charcoal body {
+      background-color: #08080a !important;
+      background-image: none !important;
+    }
 
-  /* Rose Quartz (Espresso theme) */
-  html.mode-glass.theme-espresso body {
-    background-color: #1c0914 !important;
-    background-image: none !important;
-  }
+    /* Rose Quartz (Espresso theme) */
+    html.mode-glass.theme-espresso body {
+      background-color: #1c0914 !important;
+      background-image: none !important;
+    }
 
-  /* Solar Amber (Tan theme) */
-  html.mode-glass.theme-tan body {
-    background-color: #1c1109 !important;
-    background-image: none !important;
-  }
+    /* Solar Amber (Tan theme) */
+    html.mode-glass.theme-tan body {
+      background-color: #1c1109 !important;
+      background-image: none !important;
+    }
 
-  /* Vintage Cognac (Brown theme) */
-  html.mode-glass.theme-brown body {
-    background-color: #1a0e08 !important;
-    background-image: none !important;
+    /* Vintage Cognac (Brown theme) */
+    html.mode-glass.theme-brown body {
+      background-color: #1a0e08 !important;
+      background-image: none !important;
+    }
   }
 
   h1,

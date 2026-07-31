@@ -8,7 +8,7 @@ import { budgetsService } from '@/firebase/budgets.service';
 import { goalsService } from '@/firebase/goals.service';
 import { debtsService } from '@/firebase/debts.service';
 import { computeDashboard } from '@/firebase/dashboard';
-import { currentMonth } from '@/utils/format';
+import { currentMonth, sortTransactionsLatestFirst } from '@/utils/format';
 
 function requireUid(): string {
   const uid = useAuthStore.getState().user?.id;
@@ -35,6 +35,7 @@ interface FinanceState {
 
   addTransaction: (data: { type: TransactionType; category: string; amount: number; walletId: string; date: string; note?: string }) => Promise<void>;
   addFullDayTransactions: (date: string, rows: { walletId: string; category: string; amount: number; note?: string; type: TransactionType }[]) => Promise<void>;
+  importTransactions: (rows: { walletId: string; type: TransactionType; category: string; amount: number; date: string; note?: string }[]) => Promise<number>;
   updateTransaction: (id: string, data: Partial<Transaction>) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
 
@@ -120,34 +121,183 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   addTransaction: async (data) => {
     const uid = requireUid();
-    const tx = await transactionsService.create(uid, data);
-    set({ transactions: [tx, ...get().transactions] });
-    get().fetchAll();
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const targetWallet = get().wallets.find((w) => w.id === data.walletId);
+    const walletName = targetWallet?.name || 'Wallet';
+
+    const optimisticTx: Transaction = {
+      id: tempId,
+      walletId: data.walletId,
+      walletName,
+      type: data.type,
+      category: data.category,
+      amount: data.amount,
+      note: data.note || '',
+      date: data.date,
+      createdAt: new Date().toISOString(),
+    };
+
+    const delta = data.type === 'income' ? data.amount : -data.amount;
+    const allocDelta = data.type === 'income' ? data.amount : 0;
+
+    const nextTxs = sortTransactionsLatestFirst([optimisticTx, ...get().transactions]);
+    const nextWallets = get().wallets.map((w) => {
+      if (w.id === data.walletId) {
+        return {
+          ...w,
+          balance: w.balance + delta,
+          allocatedAmount: w.allocatedAmount + allocDelta,
+        };
+      }
+      return w;
+    });
+
+    set({ transactions: nextTxs, wallets: nextWallets });
+    get().fetchDashboard();
+
+    try {
+      const realTx = await transactionsService.create(uid, data);
+      set({
+        transactions: get().transactions.map((t) => (t.id === tempId ? realTx : t)),
+      });
+      get().fetchDashboard();
+    } catch (err) {
+      get().fetchAll(true);
+      throw err;
+    }
   },
+
   addFullDayTransactions: async (date, rows) => {
     const uid = requireUid();
-    const created = await transactionsService.createBatch(uid, date, rows);
-    set({ transactions: [...created, ...get().transactions] });
-    get().fetchAll();
+    const tempTxs: Transaction[] = [];
+    const walletDeltas = new Map<string, { balance: number; allocated: number }>();
+
+    rows.forEach((r, idx) => {
+      const wallet = get().wallets.find((w) => w.id === r.walletId);
+      const walletName = wallet?.name || 'Wallet';
+      const tempId = `temp-batch-${Date.now()}-${idx}`;
+      tempTxs.push({
+        id: tempId,
+        walletId: r.walletId,
+        walletName,
+        type: r.type,
+        category: r.category,
+        amount: r.amount,
+        note: r.note || '',
+        date,
+        createdAt: new Date().toISOString(),
+      });
+
+      const bDelta = r.type === 'income' ? r.amount : -r.amount;
+      const aDelta = r.type === 'income' ? r.amount : 0;
+      const prev = walletDeltas.get(r.walletId) || { balance: 0, allocated: 0 };
+      walletDeltas.set(r.walletId, { balance: prev.balance + bDelta, allocated: prev.allocated + aDelta });
+    });
+
+    const nextTxs = sortTransactionsLatestFirst([...tempTxs, ...get().transactions]);
+    const nextWallets = get().wallets.map((w) => {
+      const deltas = walletDeltas.get(w.id);
+      if (deltas) {
+        return {
+          ...w,
+          balance: w.balance + deltas.balance,
+          allocatedAmount: w.allocatedAmount + deltas.allocated,
+        };
+      }
+      return w;
+    });
+
+    set({ transactions: nextTxs, wallets: nextWallets });
+    get().fetchDashboard();
+
+    try {
+      await transactionsService.createBatch(uid, date, rows);
+      get().fetchAll(true);
+    } catch (err) {
+      get().fetchAll(true);
+      throw err;
+    }
   },
+
+  importTransactions: async (rows) => {
+    const uid = requireUid();
+    if (rows.length === 0) return 0;
+    // Group by date for batch creating
+    const byDate = new Map<string, typeof rows>();
+    rows.forEach((r) => {
+      const list = byDate.get(r.date) || [];
+      list.push(r);
+      byDate.set(r.date, list);
+    });
+    let importedCount = 0;
+    for (const [date, dateRows] of byDate.entries()) {
+      // Chunk in max 20 rows per batch transaction
+      for (let i = 0; i < dateRows.length; i += 20) {
+        const chunk = dateRows.slice(i, i + 20);
+        await transactionsService.createBatch(uid, date, chunk);
+        importedCount += chunk.length;
+      }
+    }
+    await get().fetchAll(true);
+    return importedCount;
+  },
+
   updateTransaction: async (id, data) => {
     const uid = requireUid();
-    const tx = await transactionsService.update(uid, id, data);
-    set({ transactions: get().transactions.map((t) => (t.id === id ? tx : t)) });
-    get().fetchAll();
+    try {
+      const tx = await transactionsService.update(uid, id, data);
+      set({ transactions: sortTransactionsLatestFirst(get().transactions.map((t) => (t.id === id ? tx : t))) });
+      get().fetchAll(true);
+    } catch (err) {
+      get().fetchAll(true);
+      throw err;
+    }
   },
+
   deleteTransaction: async (id) => {
     const uid = requireUid();
-    await transactionsService.delete(uid, id);
-    set({ transactions: get().transactions.filter((t) => t.id !== id) });
-    get().fetchAll();
+    const targetTx = get().transactions.find((t) => t.id === id);
+
+    if (targetTx) {
+      const bDelta = targetTx.type === 'income' ? -targetTx.amount : targetTx.amount;
+      const aDelta = targetTx.type === 'income' ? -targetTx.amount : 0;
+
+      const nextTxs = get().transactions.filter((t) => t.id !== id);
+      const nextWallets = get().wallets.map((w) => {
+        if (w.id === targetTx.walletId) {
+          return {
+            ...w,
+            balance: w.balance + bDelta,
+            allocatedAmount: w.allocatedAmount + aDelta,
+          };
+        }
+        return w;
+      });
+
+      set({ transactions: nextTxs, wallets: nextWallets });
+      get().fetchDashboard();
+    }
+
+    try {
+      await transactionsService.delete(uid, id);
+    } catch (err) {
+      get().fetchAll(true);
+      throw err;
+    }
   },
 
   setBudget: async (month, amount) => {
     const uid = requireUid();
-    const budget = await budgetsService.set(uid, month, amount);
-    set({ budget });
+    const nextBudget = { id: month, month, amount, userId: uid };
+    set({ budget: nextBudget });
     get().fetchDashboard();
+
+    try {
+      await budgetsService.set(uid, month, amount);
+    } catch (err) {
+      get().fetchAll(true);
+      throw err;
+    }
   },
 
   addGoal: async (data) => {

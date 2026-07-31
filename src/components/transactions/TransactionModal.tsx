@@ -97,14 +97,15 @@ export function TransactionModal({ open, onClose, type, editing }: TransactionMo
       note: values.note,
     };
 
-    if (editing) {
-      await updateTransaction(editing.id, payload);
-      toast('Transaction updated', 'success');
-    } else {
-      await addTransaction(payload);
-      toast(`${type === 'income' ? 'Income' : 'Expense'} added`, 'success');
-    }
     onClose();
+
+    if (editing) {
+      toast('Transaction updated', 'success');
+      addTransaction(payload).catch((err) => toast(`Failed to update: ${err.message}`, 'error'));
+    } else {
+      toast(`${type === 'income' ? 'Income' : 'Expense'} added`, 'success');
+      addTransaction(payload).catch((err) => toast(`Failed to add: ${err.message}`, 'error'));
+    }
   };
 
   return (
@@ -169,7 +170,7 @@ export function TransactionModal({ open, onClose, type, editing }: TransactionMo
         </Field>
 
         <Field label="Date">
-          <Input type="date" {...register('date', { required: true })} />
+          <Input type="date" value={watch('date')} {...register('date', { required: true })} />
         </Field>
 
         <Field label="Note (optional)">

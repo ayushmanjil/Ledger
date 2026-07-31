@@ -69,16 +69,9 @@ export function BudgetPage() {
       return;
     }
     const paise = Math.round(parsedRupees * 100);
-    setIsSaving(true);
-    try {
-      await setBudget(month, paise);
-      toast('Target monthly budget updated.', 'success');
-      setIsEditModalOpen(false);
-    } catch {
-      toast('Failed to update target budget.', 'error');
-    } finally {
-      setIsSaving(false);
-    }
+    setIsEditModalOpen(false);
+    toast('Target monthly budget updated.', 'success');
+    setBudget(month, paise).catch(() => toast('Failed to update target budget.', 'error'));
   };
 
   return (
@@ -88,30 +81,25 @@ export function BudgetPage() {
         <LeatherCard className="lg:col-span-2">
           <div className="flex items-start justify-between mb-2">
             <div>
-              <p className="text-xs uppercase tracking-wide text-cream-50/50 mb-1">Target Monthly Budget</p>
+              <p className="text-xs uppercase tracking-wide text-cream-50/50 mb-1">Monthly Budget Balance</p>
               <div className="flex items-baseline gap-3">
-                <p className="font-display text-3xl font-semibold text-cream-50">{formatCurrency(effectiveBudget)}</p>
-                {manualBudget > 0 ? (
-                  <span className="text-xs text-gold-300/80 bg-gold-300/10 px-2 py-0.5 rounded-full border border-gold-300/20">
-                    Custom Target
-                  </span>
-                ) : (
-                  <span className="text-xs text-cream-50/45">
-                    Auto-summed from wallets
-                  </span>
-                )}
+                <p className="font-display text-3xl font-semibold text-gold-300">{formatCurrency(remaining)}</p>
               </div>
             </div>
             <GlassButton size="sm" variant="ghost" onClick={handleOpenEdit} className="gap-1.5 text-xs">
-              <Edit2 size={13} /> Edit Target
+              <Edit2 size={13} /> Edit Budget
             </GlassButton>
           </div>
 
           <ProgressBar value={pct} tone={health.tone === 'danger' ? 'danger' : health.tone === 'warning' ? 'warning' : 'success'} />
 
-          <div className="flex justify-between mt-3 text-sm flex-wrap gap-2">
-            <span className="text-cream-50/60">Spent: {formatCurrency(used)}</span>
-            <span className="text-gold-300 font-medium">Remaining: {formatCurrency(remaining)}</span>
+          <div className="flex items-center justify-between mt-3.5 flex-wrap gap-2 pt-2 border-t border-white/10">
+            <span className="text-base sm:text-lg font-semibold text-cream-50 tracking-tight">
+              {formatCurrency(used)} spent of {formatCurrency(effectiveBudget)}
+            </span>
+            <span className="text-sm font-semibold text-cream-50/70">
+              {pct}% used
+            </span>
           </div>
 
           {/* Dual Warning Pills / Notices */}

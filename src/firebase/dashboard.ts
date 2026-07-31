@@ -1,5 +1,5 @@
 import type { DashboardSummary, Transaction, Wallet, SavingsGoal, Budget } from '@/types';
-import { currentMonth } from '@/utils/format';
+import { currentMonth, sortTransactionsLatestFirst } from '@/utils/format';
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -150,9 +150,7 @@ export function computeDashboard(
     return { day, amount: byDay.get(iso) ?? 0 };
   });
 
-  const recentTransactions = [...transactions]
-    .sort((a, b) => (a.date === b.date ? b.id.localeCompare(a.id) : b.date.localeCompare(a.date)))
-    .slice(0, 6);
+  const recentTransactions = sortTransactionsLatestFirst(transactions).slice(0, 6);
 
   return {
     monthlyBudget,

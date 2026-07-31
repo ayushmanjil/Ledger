@@ -10,7 +10,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Check } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Check, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface FieldProps {
@@ -256,14 +256,18 @@ export const CustomDatePicker = forwardRef<HTMLInputElement, CustomDatePickerPro
     const [coords, setCoords] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
     const [currentVal, setCurrentVal] = useState<string>(() => {
-      if (value !== undefined) return String(value);
-      if (defaultValue !== undefined) return String(defaultValue);
+      if (value !== undefined && value !== null) return String(value);
+      if (defaultValue !== undefined && defaultValue !== null) return String(defaultValue);
       return '';
     });
 
     useEffect(() => {
-      if (value !== undefined) setCurrentVal(String(value));
-    }, [value]);
+      if (value !== undefined && value !== null) {
+        setCurrentVal(String(value));
+      } else if (internalInputRef.current && internalInputRef.current.value) {
+        setCurrentVal(internalInputRef.current.value);
+      }
+    });
 
     // Calendar navigation state
     const [viewDate, setViewDate] = useState<Date>(() => {
@@ -495,9 +499,34 @@ CustomDatePicker.displayName = 'CustomDatePicker';
 // ─────────────────────────────────────────────────────────────────────────────
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   ({ type, className, ...props }, ref) => {
+    const [showPassword, setShowPassword] = useState(false);
+
     if (type === 'date') {
       return <CustomDatePicker ref={ref} className={className} {...props} />;
     }
+
+    if (type === 'password') {
+      return (
+        <div className="relative w-full">
+          <input
+            ref={ref}
+            type={showPassword ? 'text' : 'password'}
+            className={cn(baseStyle, 'pr-10', className)}
+            {...props}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-cream-50/50 hover:text-gold-300 focus:outline-none transition-colors p-1 rounded-lg cursor-pointer"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            tabIndex={-1}
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+      );
+    }
+
     return <input ref={ref} type={type} className={cn(baseStyle, className)} {...props} />;
   }
 );

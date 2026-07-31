@@ -12,7 +12,7 @@ import { useFinanceStore } from '@/store/financeStore';
 import { useUIStore } from '@/store/uiStore';
 import { toast } from '@/components/ui/Toast';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, type Transaction } from '@/types';
-import { todayISO } from '@/utils/format';
+import { todayISO, sortTransactionsLatestFirst } from '@/utils/format';
 
 const QUICK_FILTERS = ['All', 'Today', 'Yesterday', 'Last Week', 'This Month', 'Last Month'] as const;
 
@@ -46,15 +46,15 @@ export function TransactionsPage() {
   const allCategories = [...new Set([...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES])];
 
   const filtered = useMemo(() => {
-    return transactions
+    const list = transactions
       .filter((t) => quickFilter === 'All' || isInQuickFilter(t.date, quickFilter))
       .filter((t) => walletFilter === 'all' || String(t.walletId) === walletFilter)
       .filter((t) => categoryFilter === 'all' || t.category === categoryFilter)
       .filter((t) => typeFilter === 'all' || t.type === typeFilter)
       .filter((t) => !dateFrom || t.date >= dateFrom)
       .filter((t) => !dateTo || t.date <= dateTo)
-      .filter((t) => !search.trim() || t.category.toLowerCase().includes(search.toLowerCase()) || t.note?.toLowerCase().includes(search.toLowerCase()))
-      .sort((a, b) => (a.date < b.date ? 1 : -1));
+      .filter((t) => !search.trim() || t.category.toLowerCase().includes(search.toLowerCase()) || t.note?.toLowerCase().includes(search.toLowerCase()));
+    return sortTransactionsLatestFirst(list);
   }, [transactions, quickFilter, walletFilter, categoryFilter, typeFilter, dateFrom, dateTo, search]);
 
   const handleDelete = async () => {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Sun, Moon, Download, KeyRound, AlertTriangle, Keyboard, CheckCircle2, Sparkles, Layers } from 'lucide-react';
+import { Sun, Moon, Download, Upload, KeyRound, AlertTriangle, Keyboard, CheckCircle2, Sparkles, Layers, ArrowUpDown } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { LeatherCard } from '@/components/ui/LeatherCard';
 import { GlassButton } from '@/components/ui/GlassButton';
@@ -13,7 +13,7 @@ import { changePassword, reauthenticate } from '@/firebase/auth.service';
 import { resetUserData } from '@/firebase/account.service';
 import { toast } from '@/components/ui/Toast';
 import { formatCurrency, currentMonth } from '@/utils/format';
-import { downloadFile, transactionsToCsv } from '@/utils/exportData';
+import { downloadFile, transactionsToCsv, importTransactionsFromJsonOrCsv } from '@/utils/exportData';
 
 const SHORTCUTS = [
   ['I', 'Add Income'], ['E', 'Add Expense'], ['D', 'Add Full Day Expenses'],
@@ -25,17 +25,39 @@ const SHORTCUTS = [
 export function SettingsPage() {
   const { user } = useAuthStore();
   const { theme, setTheme, cardStyle, setCardStyle } = useUIStore();
-  const { wallets, transactions, goals, budget } = useFinanceStore();
+  const { wallets, transactions, goals, budget, importTransactions } = useFinanceStore();
   const [resetOpen, setResetOpen] = useState(false);
   const [resetPassword, setResetPassword] = useState('');
   const [resetting, setResetting] = useState(false);
   const [exportFormat, setExportFormat] = useState<'csv' | 'json'>('csv');
   const [exportRange, setExportRange] = useState('current-month');
+  const [isImporting, setIsImporting] = useState(false);
 
   const { register: regPw, handleSubmit: handlePw, reset: resetPw, formState: { isSubmitting: pwSubmitting } } = useForm<{ currentPassword: string; newPassword: string }>();
 
   const totalExpenses = transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const totalSaved = goals.reduce((s, g) => s + g.savedAmount, 0);
+
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsImporting(true);
+    try {
+      const text = await file.text();
+      const parsedRows = importTransactionsFromJsonOrCsv(text, file.name, wallets);
+      if (parsedRows.length === 0) {
+        toast('No valid transaction records found in file', 'error');
+        return;
+      }
+      const count = await importTransactions(parsedRows);
+      toast(`Successfully imported ${count} transaction${count === 1 ? '' : 's'}!`, 'success');
+    } catch (err: any) {
+      toast(`Failed to import file: ${err?.message || 'Invalid format'}`, 'error');
+    } finally {
+      setIsImporting(false);
+      e.target.value = '';
+    }
+  };
 
   const onChangePassword = async (values: { currentPassword: string; newPassword: string }) => {
     try {
@@ -105,94 +127,98 @@ export function SettingsPage() {
         {/* Theme & Card Style */}
         <LeatherCard>
           <p className="text-xs uppercase tracking-wide text-cream-50/50 mb-4">Appearance & Style</p>
-          
+
           {/* Card Surface Style Toggle */}
           <div className="mb-5 p-3 rounded-2xl bg-black/20 border border-white/5">
             <p className="text-xs text-cream-50/60 font-medium mb-2.5">Surface Material Design</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <GlassButton 
-                variant={cardStyle === 'leather' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={cardStyle === 'leather' ? 'primary' : 'ghost'}
                 onClick={() => setCardStyle('leather')}
                 full
                 className="justify-between"
               >
                 <span className="flex items-center gap-2">
                   <Layers size={15} /> Artisan Leather Craft
-                </span> 
+                </span>
                 {cardStyle === 'leather' && <CheckCircle2 size={16} />}
               </GlassButton>
 
-              <GlassButton 
-                variant={cardStyle === 'glass' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={cardStyle === 'glass' ? 'primary' : 'ghost'}
                 onClick={() => setCardStyle('glass')}
                 full
-                className="justify-between"
+                className="hidden lg:flex justify-between"
               >
                 <span className="flex items-center gap-2">
                   <Sparkles size={15} /> Frosted Crystal Glass
-                </span> 
+                </span>
                 {cardStyle === 'glass' && <CheckCircle2 size={16} />}
               </GlassButton>
+
+              <div className="lg:hidden text-[11px] text-cream-50/60 p-2.5 rounded-xl bg-white/5 flex items-center justify-between">
+                <span>To experience Glass UI, switch to desktop mode.</span>
+              </div>
             </div>
           </div>
 
           <p className="text-xs text-cream-50/60 font-medium mb-2.5">
             {cardStyle === 'glass' ? 'Frosted Glass Color Atmosphere' : 'Artisan Leather Color Palette'}
           </p>
-          
+
           {cardStyle === 'glass' ? (
-            /* Glass UI Classy Solid Color Options */
+            /* Glass UI Solid Color Options */
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <GlassButton 
-                variant={theme === 'maroon' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'maroon' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('maroon')}
                 full
                 className="justify-between"
               >
                 <span>Imperial Velvet</span> {theme === 'maroon' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'navy' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'navy' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('navy')}
                 full
                 className="justify-between"
               >
                 <span>Sapphire Reserve</span> {theme === 'navy' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'olive' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'olive' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('olive')}
                 full
                 className="justify-between"
               >
                 <span>Emerald Solstice</span> {theme === 'olive' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'charcoal' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'charcoal' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('charcoal')}
                 full
                 className="justify-between"
               >
                 <span>Obsidian Noir</span> {theme === 'charcoal' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'espresso' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'espresso' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('espresso')}
                 full
                 className="justify-between"
               >
                 <span>Rose Quartz</span> {theme === 'espresso' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'tan' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'tan' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('tan')}
                 full
                 className="justify-between"
               >
                 <span>Solar Amber</span> {theme === 'tan' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'brown' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'brown' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('brown')}
                 full
                 className="sm:col-span-2 justify-between"
@@ -201,58 +227,58 @@ export function SettingsPage() {
               </GlassButton>
             </div>
           ) : (
-            /* Leather UI Pre-existing Color Options */
+            /* Leather UI Color Options */
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <GlassButton 
-                variant={theme === 'brown' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'brown' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('brown')}
                 full
                 className="justify-between"
               >
                 <span>Vintage Cognac Reserve</span> {theme === 'brown' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'charcoal' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'charcoal' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('charcoal')}
                 full
                 className="justify-between"
               >
                 <span>Midnight Obsidian Craft</span> {theme === 'charcoal' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'maroon' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'maroon' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('maroon')}
                 full
                 className="justify-between"
               >
                 <span>Crimson Reserve</span> {theme === 'maroon' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'olive' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'olive' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('olive')}
                 full
                 className="justify-between"
               >
                 <span>Heritage Moss Craft</span> {theme === 'olive' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'navy' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'navy' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('navy')}
                 full
                 className="justify-between"
               >
                 <span>Midnight Navy Leather</span> {theme === 'navy' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'tan' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'tan' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('tan')}
                 full
                 className="justify-between"
               >
                 <span>Saddle Tan Heritage</span> {theme === 'tan' && <CheckCircle2 size={16} />}
               </GlassButton>
-              <GlassButton 
-                variant={theme === 'espresso' ? 'primary' : 'ghost'} 
+              <GlassButton
+                variant={theme === 'espresso' ? 'primary' : 'ghost'}
                 onClick={() => setTheme('espresso')}
                 full
                 className="sm:col-span-2 justify-between"
@@ -273,23 +299,64 @@ export function SettingsPage() {
           </form>
         </LeatherCard>
 
-        {/* Export */}
+        {/* Data Management (Import & Export Data) */}
         <LeatherCard>
-          <p className="text-xs uppercase tracking-wide text-cream-50/50 mb-4 flex items-center gap-1.5"><Download size={13} /> Export Data</p>
-          <div className="flex flex-col gap-4">
-            <Field label="Date Range">
-              <Select value={exportRange} onChange={(e) => setExportRange(e.target.value)}>
-                <option value="current-month">Current Month</option>
-                <option value="all">All Time</option>
-              </Select>
-            </Field>
-            <Field label="Format">
-              <Select value={exportFormat} onChange={(e) => setExportFormat(e.target.value as 'csv' | 'json')}>
-                <option value="csv">CSV (Spreadsheet)</option>
-                <option value="json">JSON (Full backup)</option>
-              </Select>
-            </Field>
-            <GlassButton variant="primary" onClick={handleExport}>Download export</GlassButton>
+          <p className="text-xs uppercase tracking-wide text-cream-50/50 mb-4 flex items-center gap-1.5 font-semibold">
+            <ArrowUpDown size={13} /> Data Management
+          </p>
+
+          {/* Export Section */}
+          <div className="flex flex-col gap-2.5 mb-5 pb-4 border-b border-white/10">
+            <p className="text-xs font-semibold text-gold-300 flex items-center gap-1.5">
+              <Download size={13} /> Export Data
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="Range">
+                <Select value={exportRange} onChange={(e) => setExportRange(e.target.value)}>
+                  <option value="current-month">Current Month</option>
+                  <option value="all">All Time</option>
+                </Select>
+              </Field>
+              <Field label="Format">
+                <Select value={exportFormat} onChange={(e) => setExportFormat(e.target.value as 'csv' | 'json')}>
+                  <option value="csv">CSV</option>
+                  <option value="json">JSON</option>
+                </Select>
+              </Field>
+            </div>
+            <GlassButton variant="primary" size="sm" onClick={handleExport} className="w-full justify-center">
+              <Download size={14} /> Download Export
+            </GlassButton>
+          </div>
+
+          {/* Import Section */}
+          <div className="flex flex-col gap-2.5">
+            <p className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+              <Upload size={13} /> Import Data
+            </p>
+            <p className="text-[11px] text-cream-50/60 leading-normal">
+              Import transactions from JSON backup or CSV files. Automatically links wallets and entries.
+            </p>
+            <label className="block w-full">
+              <input
+                type="file"
+                accept=".csv,.json"
+                onChange={handleFileImport}
+                disabled={isImporting}
+                className="hidden"
+                id="import-file-input"
+              />
+              <GlassButton
+                type="button"
+                variant="primary"
+                size="sm"
+                full
+                disabled={isImporting}
+                onClick={() => document.getElementById('import-file-input')?.click()}
+              >
+                <Upload size={14} /> {isImporting ? 'Importing…' : 'Select CSV / JSON file'}
+              </GlassButton>
+            </label>
           </div>
         </LeatherCard>
 

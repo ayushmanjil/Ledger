@@ -1,3 +1,5 @@
+import type { Transaction } from '@/types';
+
 // All amounts move through the app as integer paise. This is the ONLY place
 // currency formatting happens, which is what makes multi-currency support
 // later a one-function change rather than a data migration.
@@ -55,9 +57,31 @@ export function formatDayLabel(iso: string): string {
 }
 
 export function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export function currentMonth(): string {
-  return new Date().toISOString().slice(0, 7);
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
 }
+
+export function sortTransactionsLatestFirst(transactions: Transaction[]): Transaction[] {
+  return [...transactions].sort((a, b) => {
+    if (a.date !== b.date) {
+      return b.date.localeCompare(a.date);
+    }
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    if (timeA !== timeB) {
+      return timeB - timeA;
+    }
+    return (b.id || '').localeCompare(a.id || '');
+  });
+}
+
