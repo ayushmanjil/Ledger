@@ -30,8 +30,8 @@ export function WalletCard({ wallet, spent, onDelete }: {
   const hasAllocation = wallet.allocatedAmount > 0;
   const pct = hasAllocation ? Math.min(100, (spent / wallet.allocatedAmount) * 100) : 0;
 
-  // List of recent 5 months to show budget inclusion status
-  const months = getMonthList(currentMonth(), 3, 2);
+  // List of 4 months (1 past, current, 2 future) for minimal display
+  const months = getMonthList(currentMonth(), 1, 2);
 
   const handleToggleGlobalInclude = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -111,14 +111,14 @@ export function WalletCard({ wallet, spent, onDelete }: {
         className="w-full mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-gold-300/80 hover:text-gold-300 transition-colors"
       >
         <span className="flex items-center gap-1.5 font-medium">
-          <Sliders size={13} /> {isExpanded ? 'Hide Details & Budget Info' : 'Expand Details & Budget Info'}
+          <Sliders size={13} /> {isExpanded ? 'Hide Details' : 'Expand Details'}
         </span>
         {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
       </button>
 
       {/* Expanded Details Section */}
       {isExpanded && (
-        <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-4 text-xs">
+        <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-3 text-xs">
           {/* Metadata Info */}
           <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-white/5 border border-white/10 text-cream-50/70">
             <div>
@@ -135,63 +135,53 @@ export function WalletCard({ wallet, spent, onDelete }: {
           <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10">
             <div>
               <p className="font-medium text-cream-50">Global Budget Inclusion</p>
-              <p className="text-[11px] text-cream-50/50">Include in monthly budget by default</p>
+              <p className="text-[11px] text-cream-50/50">Default for all months</p>
             </div>
             <GlassButton
               size="sm"
               variant={wallet.includeInBudget ? 'primary' : 'ghost'}
               onClick={handleToggleGlobalInclude}
               disabled={isTogglingGlobal}
-              className="text-[11px] px-2.5 py-1"
+              className="text-xs px-3 py-1 whitespace-nowrap shrink-0 border border-white/15"
             >
               {wallet.includeInBudget ? 'Enabled' : 'Disabled'}
             </GlassButton>
           </div>
 
-          {/* Monthly Budget Breakdown & Opt-Out Controls */}
+          {/* Monthly Budget Opt-Out Controls */}
           <div>
-            <p className="font-semibold text-cream-50 mb-1.5 flex items-center gap-1.5">
-              <Calendar size={13} className="text-gold-300" /> Monthly Budget Inclusion
-            </p>
-            <p className="text-[11px] text-cream-50/50 mb-3 leading-relaxed">
-              When included, expense transactions from this wallet in a given month are deducted from that month's monthly budget.
+            <p className="font-semibold text-cream-50 text-xs mb-2 flex items-center gap-1.5">
+              <Calendar size={13} className="text-gold-300" /> Monthly Budget Status
             </p>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               {months.map((m) => {
                 const isIncluded = isWalletIncludedInMonth(wallet, m);
                 const isCurrent = m === currentMonth();
                 return (
                   <div
                     key={m}
-                    className={`flex items-center justify-between p-2 rounded-xl border text-xs ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-xl border text-xs ${
                       isIncluded
                         ? 'bg-gold-300/10 border-gold-300/25 text-cream-50'
                         : 'bg-white/5 border-white/10 text-cream-50/50'
                     }`}
                   >
-                    <div>
-                      <div className="flex items-center gap-1.5 font-medium">
-                        {isIncluded ? (
-                          <CheckCircle2 size={13} className="text-gold-300" />
-                        ) : (
-                          <XCircle size={13} className="text-cream-50/40" />
-                        )}
-                        <span>{formatMonthLabel(m)}</span>
-                        {isCurrent && <span className="text-[10px] bg-gold-300/20 text-gold-300 px-1.5 py-0.2 rounded font-normal">Current</span>}
-                      </div>
-                      <p className="text-[10px] text-cream-50/50 mt-0.5">
-                        {isIncluded
-                          ? 'Included in budget (expenses deducted from monthly budget)'
-                          : 'Opted out of this month\'s budget'}
-                      </p>
+                    <div className="flex items-center gap-2 font-medium">
+                      {isIncluded ? (
+                        <CheckCircle2 size={14} className="text-gold-300 shrink-0" />
+                      ) : (
+                        <XCircle size={14} className="text-cream-50/40 shrink-0" />
+                      )}
+                      <span>{formatMonthLabel(m)}</span>
+                      {isCurrent && <span className="text-[10px] bg-gold-300/20 text-gold-300 px-1.5 py-0.5 rounded-full font-medium">Current</span>}
                     </div>
 
                     <GlassButton
                       size="sm"
                       variant={isIncluded ? 'ghost' : 'primary'}
                       onClick={(e) => handleToggleMonthOptOut(e, m)}
-                      className="text-[11px] py-0.5 px-2 h-7"
+                      className="text-xs px-3 py-1 whitespace-nowrap shrink-0 border border-white/15"
                     >
                       {isIncluded ? 'Opt Out' : 'Include'}
                     </GlassButton>
