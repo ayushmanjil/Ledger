@@ -12,6 +12,11 @@ interface LeatherCardProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
 
 const paddingMap = { none: '', sm: 'p-4', md: 'p-6', lg: 'p-8' };
 
+/** True when the primary pointer is a finger/stylus (phone or tablet). */
+const isTouchPrimary =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(pointer: coarse)').matches;
+
 /** The base "large container" surface: stitched leather, embossed depth,
  * soft top highlight. Every dashboard/wallet/budget card composes this. */
 export function LeatherCard({
@@ -32,7 +37,7 @@ export function LeatherCard({
         paddingMap[padding],
         className
       )}
-      whileHover={hoverLift ? { y: -4 } : undefined}
+      whileHover={hoverLift && !isTouchPrimary ? { y: -4 } : undefined}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       {...props}
     >

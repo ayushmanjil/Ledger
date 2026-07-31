@@ -19,7 +19,6 @@
     background-image:
       radial-gradient(ellipse 80% 60% at 50% -10%, rgba(184, 124, 71, 0.12), transparent),
       linear-gradient(180deg, #1F1410 0%, #17100C 100%);
-    background-attachment: fixed;
   }
 
   html.theme-maroon body {
@@ -68,49 +67,42 @@
   html.mode-glass.theme-maroon body {
     background-color: #14091a !important;
     background-image: none !important;
-    background-attachment: fixed !important;
   }
 
   /* Sapphire Reserve (Navy theme) */
   html.mode-glass.theme-navy body {
     background-color: #081020 !important;
     background-image: none !important;
-    background-attachment: fixed !important;
   }
 
   /* Emerald Solstice (Olive theme) */
   html.mode-glass.theme-olive body {
     background-color: #071510 !important;
     background-image: none !important;
-    background-attachment: fixed !important;
   }
 
   /* Obsidian Noir (Charcoal theme) */
   html.mode-glass.theme-charcoal body {
     background-color: #08080a !important;
     background-image: none !important;
-    background-attachment: fixed !important;
   }
 
   /* Rose Quartz (Espresso theme) */
   html.mode-glass.theme-espresso body {
     background-color: #1c0914 !important;
     background-image: none !important;
-    background-attachment: fixed !important;
   }
 
   /* Solar Amber (Tan theme) */
   html.mode-glass.theme-tan body {
     background-color: #1c1109 !important;
     background-image: none !important;
-    background-attachment: fixed !important;
   }
 
   /* Vintage Cognac (Brown theme) */
   html.mode-glass.theme-brown body {
     background-color: #1a0e08 !important;
     background-image: none !important;
-    background-attachment: fixed !important;
   }
 
   h1,

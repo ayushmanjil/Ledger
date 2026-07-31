@@ -105,7 +105,6 @@ export function AppShell({ title, children, actions }: { title: string; children
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2, ease: 'easeOut' }}
-                  style={{ willChange: 'opacity, transform', transform: 'translateZ(0)' }}
                   className="flex-1 flex flex-col min-h-0 w-full"
                 >
                   {children}

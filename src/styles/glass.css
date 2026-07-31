@@ -15,8 +15,8 @@
 
 @media (max-width: 1024px) {
   .glass-surface {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
 }
 

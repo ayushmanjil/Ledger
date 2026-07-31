@@ -230,6 +230,14 @@ html.mode-glass .leather-stitch {
   display: none !important;
 }
 
+/* Reduce blur on mobile to cut GPU compositing cost */
+@media (max-width: 1024px) {
+  html.mode-glass .leather-surface {
+    backdrop-filter: blur(12px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  }
+}
+
 /* Frosted Glass Embossed Icon Badges */
 html.mode-glass .leather-emboss-icon {
   background:
