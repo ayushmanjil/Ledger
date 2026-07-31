@@ -205,7 +205,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                   maxWidth: 'calc(100vw - 24px)',
                   zIndex: 99999,
                 }}
-                className="leather-surface p-1.5 overflow-hidden shadow-2xl rounded-2xl border border-gold-300/25 bg-[#1F1410]/95 backdrop-blur-xl"
+                className="leather-surface p-1.5 overflow-hidden shadow-2xl rounded-2xl border border-gold-300/25 bg-[#1F1410]"
               >
                 <div className="max-h-60 overflow-y-auto no-scrollbar flex flex-col gap-0.5">
                   {options.map((opt) => {
@@ -421,7 +421,7 @@ export const CustomDatePicker = forwardRef<HTMLInputElement, CustomDatePickerPro
                   width: 280,
                   zIndex: 99999,
                 }}
-                className="leather-surface p-3.5 overflow-hidden shadow-2xl rounded-2xl border border-gold-300/25 bg-[#1F1410]/95 backdrop-blur-xl"
+                className="leather-surface p-3.5 overflow-hidden shadow-2xl rounded-2xl border border-gold-300/25 bg-[#1F1410]"
               >
                 {/* Calendar Header */}
                 <div className="flex items-center justify-between mb-3 px-1">

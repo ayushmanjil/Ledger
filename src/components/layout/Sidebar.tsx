@@ -121,14 +121,12 @@ export function MobileSidebarDrawer() {
               position: 'fixed',
               inset: 0,
               zIndex: 9998,
-              background: 'rgba(0,0,0,0.70)',
-              backdropFilter: 'blur(4px)',
-              WebkitBackdropFilter: 'blur(4px)',
+              background: 'rgba(0, 0, 0, 0.68)',
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             onClick={() => setSidebarOpen(false)}
           />
 
@@ -143,11 +141,12 @@ export function MobileSidebarDrawer() {
               bottom: 0,
               width: 'min(300px, 82vw)',
               zIndex: 9999,
+              willChange: 'transform',
             }}
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="leather-stitch" />
             <SidebarNavContent onClose={() => setSidebarOpen(false)} />

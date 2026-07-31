@@ -18,10 +18,11 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/65"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
           onClick={onClose}
         >
           <motion.div
@@ -30,10 +31,11 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
               sizeMap[size],
               'max-h-[90vh] sm:max-h-[85vh] overflow-y-auto'
             )}
+            style={{ willChange: 'transform' }}
             initial={{ opacity: 0, y: '100%' }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
-            transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Drag handle indicator for mobile */}
