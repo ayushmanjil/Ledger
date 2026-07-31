@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+
+  html {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-leather-950 text-cream-50 font-body antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(184, 124, 71, 0.12), transparent),
+      linear-gradient(180deg, #1F1410 0%, #17100C 100%);
+    background-attachment: fixed;
+  }
+
+  html.theme-maroon body {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(184, 71, 85, 0.15), transparent),
+      linear-gradient(180deg, #230A0D 0%, #160407 100%);
+  }
+
+  html.theme-olive body {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(138, 148, 99, 0.15), transparent),
+      linear-gradient(180deg, #1B1E11 0%, #0C0E06 100%);
+  }
+
+  html.theme-charcoal body {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(120, 130, 145, 0.15), transparent),
+      linear-gradient(180deg, #121418 0%, #08090C 100%);
+  }
+
+  html.theme-navy body {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99, 140, 196, 0.15), transparent),
+      linear-gradient(180deg, #101926 0%, #0A101A 100%);
+  }
+
+  html.theme-tan body {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(214, 143, 76, 0.18), transparent),
+      linear-gradient(180deg, #24160C 0%, #170E07 100%);
+  }
+
+  html.theme-espresso body {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(140, 85, 45, 0.15), transparent),
+      linear-gradient(180deg, #18100B 0%, #0E0A07 100%);
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     SOLID CLASSY GLASS UI BACKGROUND CANVAS (.mode-glass)
+     No gradients — clean luxury solid background colors
+  ───────────────────────────────────────────────────────────────────────── */
+
+  /* Imperial Velvet (Maroon theme) */
+  html.mode-glass body,
+  html.mode-glass.theme-maroon body {
+    background-color: #14091a !important;
+    background-image: none !important;
+    background-attachment: fixed !important;
+  }
+
+  /* Sapphire Reserve (Navy theme) */
+  html.mode-glass.theme-navy body {
+    background-color: #081020 !important;
+    background-image: none !important;
+    background-attachment: fixed !important;
+  }
+
+  /* Emerald Solstice (Olive theme) */
+  html.mode-glass.theme-olive body {
+    background-color: #071510 !important;
+    background-image: none !important;
+    background-attachment: fixed !important;
+  }
+
+  /* Obsidian Noir (Charcoal theme) */
+  html.mode-glass.theme-charcoal body {
+    background-color: #08080a !important;
+    background-image: none !important;
+    background-attachment: fixed !important;
+  }
+
+  /* Rose Quartz (Espresso theme) */
+  html.mode-glass.theme-espresso body {
+    background-color: #1c0914 !important;
+    background-image: none !important;
+    background-attachment: fixed !important;
+  }
+
+  /* Solar Amber (Tan theme) */
+  html.mode-glass.theme-tan body {
+    background-color: #1c1109 !important;
+    background-image: none !important;
+    background-attachment: fixed !important;
+  }
+
+  /* Vintage Cognac (Brown theme) */
+  html.mode-glass.theme-brown body {
+    background-color: #1a0e08 !important;
+    background-image: none !important;
+    background-attachment: fixed !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-leather-600 rounded-full;
+  }
+
+  *:focus-visible {
+    outline: 2px solid #E0B872;
+    outline-offset: 2px;
+  }
+
+  /* Prevent 300ms tap delay on all interactive elements */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Custom dropdown option styling matching leather theme */
+  select option, select optgroup {
+    background-color: #241610;
+    color: #FAF4EB;
+    padding: 8px 12px;
+  }
+
+  select option:hover,
+  select option:focus,
+  select option:checked {
+    background-color: #4A2E1F !important;
+    color: #E0B872 !important;
+  }
+
+  /* Date picker icon gold styling */
+  ::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.8) sepia(0.6) saturate(3) hue-rotate(340deg);
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  ::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

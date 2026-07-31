@@ -1,0 +1,243 @@
+/* Stitched-leather surface system. Used by LeatherCard, Sidebar, and any
+   "large container" per the design brief. Kept separate from Tailwind
+   utilities because true grain/stitch textures need layered backgrounds
+   and pseudo-elements that utility classes can't express cleanly. */
+
+.leather-surface {
+  --leather-edge: #0f0704;
+  position: relative;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #6b4230 0%, #4a2a1a 55%, #261510 100%);
+  background-blend-mode: overlay, normal;
+  border-radius: 22px;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.08),
+    0 6px 18px rgba(0,0,0,0.30),
+    0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* Mobile bottom sheet variant — rounded top only */
+.leather-surface--sheet {
+  border-radius: 22px 22px 0 0;
+}
+@media (min-width: 640px) {
+  .leather-surface--sheet {
+    border-radius: 22px;
+  }
+}
+
+.leather-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.5;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.leather-surface--olive {
+  --leather-edge: #0c0e06;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #5a6438 0%, #3c4426 55%, #202710 100%);
+  background-blend-mode: overlay, normal;
+}
+
+.leather-stitch {
+  position: absolute;
+  inset: 8px;
+  border-radius: 16px;
+  border: 1.5px dashed rgba(210, 180, 140, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+  filter: drop-shadow(0 -1px 0.5px rgba(0,0,0,0.6)) drop-shadow(0 1px 0.5px rgba(255,255,255,0.12));
+  pointer-events: none;
+}
+
+.leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #5d331e, #29180f 75%);
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,0.12),
+    inset 0 -2px 6px rgba(0,0,0,0.40),
+    0 3px 8px rgba(0,0,0,0.35);
+}
+
+/* ── Maroon Theme ─────────────────────────────────────────────────────────── */
+html.theme-maroon .leather-surface:not(.leather-surface--olive) {
+  --leather-edge: #160407;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #7e2c36 0%, #521c23 55%, #2a0d11 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-maroon .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #7a1822, #470b12 75%);
+}
+
+html.theme-maroon .leather-surface--olive {
+  --leather-edge: #050608;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #383e45 0%, #23282e 55%, #101316 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-maroon .leather-surface--olive .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #2f343a, #16181b 75%);
+}
+
+/* ── Olive Theme ──────────────────────────────────────────────────────────── */
+html.theme-olive .leather-surface:not(.leather-surface--olive) {
+  --leather-edge: #0c0e06;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #5a6438 0%, #3c4426 55%, #202710 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-olive .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #4a542f, #222716 75%);
+}
+
+html.theme-olive .leather-surface--olive {
+  --leather-edge: #0f0704;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #6b4230 0%, #4a2a1a 55%, #261510 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-olive .leather-surface--olive .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #5d331e, #29180f 75%);
+}
+
+/* ── Charcoal Theme ───────────────────────────────────────────────────────── */
+html.theme-charcoal .leather-surface:not(.leather-surface--olive) {
+  --leather-edge: #050608;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #383e45 0%, #23282e 55%, #101316 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-charcoal .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #2f343a, #16181b 75%);
+}
+
+html.theme-charcoal .leather-surface--olive {
+  --leather-edge: #160407;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #7e2c36 0%, #521c23 55%, #2a0d11 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-charcoal .leather-surface--olive .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #7a1822, #470b12 75%);
+}
+
+/* ── Midnight Navy Theme ──────────────────────────────────────────────────── */
+html.theme-navy .leather-surface:not(.leather-surface--olive) {
+  --leather-edge: #060b12;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #243c5a 0%, #162437 55%, #0a1220 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-navy .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #233e61, #0f1c2d 75%);
+}
+
+html.theme-navy .leather-surface--olive {
+  --leather-edge: #0a0b0e;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #333c46 0%, #202830 55%, #0f1318 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-navy .leather-surface--olive .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #2f3844, #151a21 75%);
+}
+
+/* ── Saddle Tan Theme ─────────────────────────────────────────────────────── */
+html.theme-tan .leather-surface:not(.leather-surface--olive) {
+  --leather-edge: #150a04;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #8f5830 0%, #5e3519 55%, #2e180a 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-tan .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #8c5229, #3f200c 75%);
+}
+
+html.theme-tan .leather-surface--olive {
+  --leather-edge: #0c0e06;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #5a6438 0%, #3c4426 55%, #202710 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-tan .leather-surface--olive .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #4a542f, #222716 75%);
+}
+
+/* ── Espresso Roast Theme ─────────────────────────────────────────────────── */
+html.theme-espresso .leather-surface:not(.leather-surface--olive) {
+  --leather-edge: #090503;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #4b2a1c 0%, #301a10 55%, #160c06 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-espresso .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #4a281a, #1f0f09 75%);
+}
+
+html.theme-espresso .leather-surface--olive {
+  --leather-edge: #0a0b0e;
+  background:
+    radial-gradient(140% 140% at 15% -10%, rgba(255,255,255,0.07), transparent 40%),
+    radial-gradient(120% 120% at 20% 0%, #2b3340 0%, #1b2028 55%, #0c1016 100%);
+  background-blend-mode: overlay, normal;
+}
+html.theme-espresso .leather-surface--olive .leather-emboss-icon {
+  background: radial-gradient(circle at 30% 25%, #2a333d, #12161b 75%);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PREMIUM FROSTED GLASSMORPHISM (.mode-glass)
+   Applied ONLY when in Glass UI mode. Leather UI remains 100% untouched.
+───────────────────────────────────────────────────────────────────────────── */
+
+html.mode-glass .leather-surface {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%),
+    rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.20) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.40),
+    inset 0 0 24px rgba(255, 255, 255, 0.03),
+    0 20px 48px rgba(0, 0, 0, 0.45) !important;
+  border-radius: 24px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+html.mode-glass .leather-surface::before {
+  display: none !important;
+}
+
+html.mode-glass .leather-stitch {
+  display: none !important;
+}
+
+/* Frosted Glass Embossed Icon Badges */
+html.mode-glass .leather-emboss-icon {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)),
+    rgba(255, 255, 255, 0.10) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.45),
+    0 4px 14px rgba(0, 0, 0, 0.30) !important;
+  color: #FFFFFF !important;
+}

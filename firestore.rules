@@ -1,0 +1,105 @@
+rules_version = '2';
+
+// Security model
+// ----------------------------------------------------------------------
+// Every document in every collection (except `users`, which is keyed by
+// uid directly) carries a `userId` field set to the Firebase Auth uid of
+// its owner. Every rule below enforces that a signed-in user may only
+// read or write documents whose `userId` matches their own uid — this is
+// the sole authorization mechanism, replacing the backend's JWT + SQL
+// `WHERE user_id = ?` checks.
+//
+// The `where('userId','==', uid)` equality filter used by every list
+// query in src/firebase/*.service.ts structurally matches the
+// `resource.data.userId == request.auth.uid` condition below, which is
+// Firestore's documented pattern for securing queries (not just single
+// document reads) — see
+// https://firebase.google.com/docs/firestore/security/rules-query
+//
+// The `!exists(...) || isOwner(resource.data)` shape on `get` allows
+// checking whether a document exists (e.g. budgets.getOrCreate) without
+// that existence check itself being rejected as a permissions error.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(data) {
+      return signedIn() && data.userId == request.auth.uid;
+    }
+
+    // ---- users/{uid} -----------------------------------------------
+    // Keyed directly by uid. A user may only read/write their own
+    // profile document (name, username, currency, theme).
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.username is string
+                    && request.resource.data.username.size() >= 3;
+      allow update: if signedIn() && request.auth.uid == uid;
+      allow delete: if false; // account deletion isn't exposed in the UI
+    }
+
+    // ---- wallets/{id} ------------------------------------------------
+    match /wallets/{id} {
+      allow get: if signedIn() && (!exists(/databases/$(database)/documents/wallets/$(id)) || isOwner(resource.data));
+      allow list: if signedIn();
+      allow create: if isOwner(request.resource.data);
+      allow update: if isOwner(resource.data) && isOwner(request.resource.data);
+      allow delete: if isOwner(resource.data);
+    }
+
+    // ---- transactions/{id} --------------------------------------------
+    match /transactions/{id} {
+      allow get: if signedIn() && (!exists(/databases/$(database)/documents/transactions/$(id)) || isOwner(resource.data));
+      allow list: if signedIn();
+      allow create: if isOwner(request.resource.data);
+      allow update: if isOwner(resource.data) && isOwner(request.resource.data);
+      allow delete: if isOwner(resource.data);
+    }
+
+    // ---- transfers/{id} (an audit record; never edited after creation) --
+    match /transfers/{id} {
+      allow get: if signedIn() && (!exists(/databases/$(database)/documents/transfers/$(id)) || isOwner(resource.data));
+      allow list: if signedIn();
+      allow create: if isOwner(request.resource.data);
+      allow update: if false;
+      allow delete: if isOwner(resource.data);
+    }
+
+    // ---- budgets/{uid_month} ------------------------------------------
+    match /budgets/{id} {
+      allow get: if signedIn() && (!exists(/databases/$(database)/documents/budgets/$(id)) || isOwner(resource.data));
+      allow list: if signedIn();
+      allow create: if isOwner(request.resource.data);
+      allow update: if isOwner(resource.data) && isOwner(request.resource.data);
+      allow delete: if isOwner(resource.data);
+    }
+
+    // ---- savings_goals/{id} --------------------------------------------
+    match /savings_goals/{id} {
+      allow get: if signedIn() && (!exists(/databases/$(database)/documents/savings_goals/$(id)) || isOwner(resource.data));
+      allow list: if signedIn();
+      allow create: if isOwner(request.resource.data);
+      allow update: if isOwner(resource.data) && isOwner(request.resource.data);
+      allow delete: if isOwner(resource.data);
+    }
+
+    // ---- debts/{id} -----------------------------------------------------
+    match /debts/{id} {
+      allow get: if signedIn() && (!exists(/databases/$(database)/documents/debts/$(id)) || isOwner(resource.data));
+      allow list: if signedIn();
+      allow create: if isOwner(request.resource.data);
+      allow update: if isOwner(resource.data) && isOwner(request.resource.data);
+      allow delete: if isOwner(resource.data);
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

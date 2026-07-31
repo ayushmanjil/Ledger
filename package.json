@@ -1,0 +1,36 @@
+{
+  "name": "ledger-frontend",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+    "firebase": "^10.13.2",
+    "framer-motion": "^11.11.1",
+    "lucide-react": "^0.451.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "react-router-dom": "^6.26.2",
+    "recharts": "^2.12.7",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.8"
+  }
+}
