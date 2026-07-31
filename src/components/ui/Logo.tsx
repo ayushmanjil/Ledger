@@ -10,69 +10,104 @@ export function Logo({ className = "w-10 h-10", ...props }: SVGProps<SVGSVGEleme
       {...props}
     >
       <defs>
-        {/* Warm Gold-Tan Line Art Gradient */}
-        <linearGradient id="lineGold" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FFEBB8" />
-          <stop offset="40%" stopColor="#E0B872" />
-          <stop offset="80%" stopColor="#C68958" />
-          <stop offset="100%" stopColor="#8A5229" />
+        {/* Rich Brown Leather Main Body Gradient */}
+        <linearGradient id="walletBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#5C3018" />
+          <stop offset="60%" stopColor="#3D1D0D" />
+          <stop offset="100%" stopColor="#240F06" />
         </linearGradient>
 
-        {/* Deep Leather Background Canvas */}
-        <radialGradient id="lineBg" cx="40%" cy="35%" r="70%">
-          <stop offset="0%" stopColor="#3D1D12" />
-          <stop offset="70%" stopColor="#210D07" />
-          <stop offset="100%" stopColor="#0F0503" />
-        </radialGradient>
+        {/* Lighter Warm Brown Strap Gradient */}
+        <linearGradient id="walletStrapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#8C4A25" />
+          <stop offset="60%" stopColor="#6B3518" />
+          <stop offset="100%" stopColor="#4A220D" />
+        </linearGradient>
 
-        <filter id="lineGlow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#E0B872" floodOpacity="0.3" />
-          <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor="#000000" floodOpacity="0.6" />
+        {/* Metallic Gold Outline Gradient */}
+        <linearGradient id="goldOutline" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFE7AB" />
+          <stop offset="50%" stopColor="#E0B872" />
+          <stop offset="100%" stopColor="#A67624" />
+        </linearGradient>
+
+        {/* Button Gold Gradient */}
+        <linearGradient id="goldButton" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFF2CE" />
+          <stop offset="50%" stopColor="#F5C768" />
+          <stop offset="100%" stopColor="#C7912E" />
+        </linearGradient>
+
+        {/* Drop Shadow */}
+        <filter id="walletShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#000000" floodOpacity="0.55" />
         </filter>
       </defs>
 
-      <g filter="url(#lineGlow)">
-        {/* Dark Leather Shield Canvas */}
-        <rect x="12" y="12" width="104" height="104" rx="26" fill="url(#lineBg)" stroke="url(#lineGold)" strokeWidth="1" opacity="0.9" />
-
-        {/* Line 1: Outer Wallet Silhouette */}
-        <path
-          d="M 28 42 C 28 32 36 26 48 26 L 86 26 C 96 26 104 32 104 42 L 104 84 C 104 94 96 100 86 100 L 42 100 C 30 100 22 92 22 80 L 22 52 C 22 46 25 42 28 42 Z"
-          stroke="url(#lineGold)"
+      <g filter="url(#walletShadow)">
+        {/* Main Wallet Body (Dark Brown Leather with Crisp Gold Outline) */}
+        <rect
+          x="14"
+          y="34"
+          width="96"
+          height="66"
+          rx="16"
+          fill="url(#walletBodyGrad)"
+          stroke="url(#goldOutline)"
           strokeWidth="3.5"
-          strokeLinecap="round"
+        />
+
+        {/* Interior Stitching Line Outline */}
+        <rect
+          x="20"
+          y="40"
+          width="84"
+          height="54"
+          rx="11"
+          fill="none"
+          stroke="#E0B872"
+          strokeWidth="1.3"
+          strokeDasharray="3.5 2.5"
+          opacity="0.7"
+        />
+
+        {/* Wallet Strap / Tab (Lighter Brown Leather with Gold Outline) */}
+        <path
+          d="M 62 53 L 110 53 C 114 53 116 55 116 59 L 116 75 C 116 79 114 81 110 81 L 62 81 C 55 81 50 75 50 67 C 50 59 55 53 62 53 Z"
+          fill="url(#walletStrapGrad)"
+          stroke="url(#goldOutline)"
+          strokeWidth="3"
           strokeLinejoin="round"
         />
 
-        {/* Line 2: Flowing Wallet Flap Arc */}
+        {/* Strap Interior Stitching Accent */}
         <path
-          d="M 22 54 C 42 46 76 46 104 54"
-          stroke="url(#lineGold)"
-          strokeWidth="3"
-          strokeLinecap="round"
+          d="M 64 57 L 111 57 M 111 77 L 64 77 C 59 77 55 73 55 67 C 55 61 59 57 64 57 Z"
+          fill="none"
+          stroke="#E0B872"
+          strokeWidth="1"
+          strokeDasharray="3 2"
+          opacity="0.6"
         />
 
-        {/* Line 3: Dashed Leather Stitch Line */}
-        <path
-          d="M 32 34 L 84 34 C 91 34 96 38 96 44 L 96 78 C 96 85 91 89 84 89 L 38 89 C 30 89 28 83 28 76 L 28 48"
-          stroke="url(#lineGold)"
+        {/* Circular Snap Button with Dark Outline */}
+        <circle
+          cx="68"
+          cy="67"
+          r="6.5"
+          fill="url(#goldButton)"
+          stroke="#2B1306"
           strokeWidth="1.8"
-          strokeDasharray="4 3"
-          opacity="0.75"
-          strokeLinecap="round"
         />
 
-        {/* Line 4: Wallet Strap Loop */}
-        <path
-          d="M 76 58 L 100 58 C 105 58 108 61 108 66 C 108 71 105 74 100 74 L 76 74"
-          stroke="url(#lineGold)"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        {/* Button Specular Highlight */}
+        <circle
+          cx="66.5"
+          cy="65.5"
+          r="1.2"
+          fill="#FFFFFF"
+          opacity="0.8"
         />
-
-        {/* Line 5: Clasp Stud Accent */}
-        <circle cx="85" cy="66" r="3.5" fill="url(#lineGold)" />
       </g>
     </svg>
   );
