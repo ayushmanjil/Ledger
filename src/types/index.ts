@@ -77,6 +77,11 @@ export interface Debt {
 
 export interface DashboardSummary {
   monthlyBudget: number;
+  manualBudget: number;
+  totalWalletAllocation: number;
+  allocationMismatch: number;
+  isOverAllocated: boolean;
+  isOverBudget: boolean;
   usedBudget: number;
   remainingBudget: number;
   monthlyExpenses: number;

@@ -31,7 +31,7 @@ function sumExpensesForMonth(transactions: Transaction[], wallets: Wallet[], mon
  * backend's insights.service.ts, run client-side over the already-loaded
  * transaction list rather than a database query. Intentionally rule-based
  * (not ML) so it stays transparent, fast, and Cloud-Function-free. */
-function generateInsights(transactions: Transaction[], budget: Budget | null): string[] {
+function generateInsights(transactions: Transaction[], budget: Budget | null, wallets: Wallet[]): string[] {
   const insights: string[] = [];
   const since = daysAgoIso(14);
   const expenses = transactions.filter((t) => t.type === 'expense' && t.category !== 'Transfer' && t.date >= since);
@@ -87,6 +87,16 @@ function generateInsights(transactions: Transaction[], budget: Budget | null): s
   const dayOfMonth = new Date().getDate();
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
   const budgetAmount = budget?.amount ?? 0;
+
+  if (budgetAmount > 0) {
+    const totalWalletAllocation = wallets
+      .filter((w) => w.includeInBudget && w.allocatedAmount > 0)
+      .reduce((s, w) => s + w.allocatedAmount, 0);
+    if (totalWalletAllocation > budgetAmount) {
+      insights.push('Active wallet allocations exceed your target monthly budget.');
+    }
+  }
+
   if (budgetAmount > 0 && dayOfMonth > 3) {
     const projected = (used / dayOfMonth) * daysInMonth;
     if (projected > budgetAmount) {
@@ -107,16 +117,23 @@ export function computeDashboard(
   budget: Budget | null,
 ): DashboardSummary {
   const month = currentMonth();
-  // Monthly budget is auto-derived from wallet allocations rather than a
-  // manually-typed number. Any wallet with includeInBudget=true contributes
-  // its allocatedAmount to the total budget for the month.
-  const monthlyBudget = wallets
+  
+  const totalWalletAllocation = wallets
     .filter((w) => w.includeInBudget && w.allocatedAmount > 0)
     .reduce((s, w) => s + w.allocatedAmount, 0);
+  
+  const manualBudget = budget?.amount ?? 0;
+  const effectiveTargetBudget = manualBudget > 0 ? manualBudget : totalWalletAllocation;
+  const monthlyBudget = effectiveTargetBudget;
+
   const usedBudget = sumExpensesForMonth(transactions, wallets, month, true);
   const monthlyExpenses = sumExpensesForMonth(transactions, wallets, month, false);
   const remainingBudget = Math.max(0, monthlyBudget - usedBudget);
   const totalSavings = goals.reduce((s, g) => s + g.savedAmount, 0);
+
+  const isOverAllocated = manualBudget > 0 && totalWalletAllocation > manualBudget;
+  const allocationMismatch = totalWalletAllocation - effectiveTargetBudget;
+  const isOverBudget = effectiveTargetBudget > 0 && usedBudget > effectiveTargetBudget;
 
   const now = new Date();
   const startOfWeek = new Date(now);
@@ -139,12 +156,17 @@ export function computeDashboard(
 
   return {
     monthlyBudget,
+    manualBudget,
+    totalWalletAllocation,
+    allocationMismatch,
+    isOverAllocated,
+    isOverBudget,
     usedBudget,
     remainingBudget,
     monthlyExpenses,
     totalSavings,
     weeklySpending,
     recentTransactions,
-    insights: generateInsights(transactions, budget),
+    insights: generateInsights(transactions, budget, wallets),
   };
 }
