@@ -71,6 +71,50 @@ export function currentMonth(): string {
   return `${year}-${month}`;
 }
 
+export function formatMonthLabel(monthStr: string): string {
+  const [year, month] = monthStr.split('-').map(Number);
+  if (!year || !month) return monthStr;
+  const d = new Date(year, month - 1, 1);
+  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
+export function getPrevMonth(monthStr: string): string {
+  const [year, month] = monthStr.split('-').map(Number);
+  if (!year || !month) return monthStr;
+  const d = new Date(year, month - 2, 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}`;
+}
+
+export function getNextMonth(monthStr: string): string {
+  const [year, month] = monthStr.split('-').map(Number);
+  if (!year || !month) return monthStr;
+  const d = new Date(year, month, 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}`;
+}
+
+export function getMonthList(aroundMonth = currentMonth(), pastCount = 6, futureCount = 3): string[] {
+  const list: string[] = [];
+  let curr = aroundMonth;
+  for (let i = pastCount; i > 0; i--) {
+    let p = curr;
+    for (let j = 0; j < i; j++) {
+      p = getPrevMonth(p);
+    }
+    if (!list.includes(p)) list.push(p);
+  }
+  if (!list.includes(aroundMonth)) list.push(aroundMonth);
+  let next = aroundMonth;
+  for (let i = 1; i <= futureCount; i++) {
+    next = getNextMonth(next);
+    if (!list.includes(next)) list.push(next);
+  }
+  return list;
+}
+
 export function sortTransactionsLatestFirst(transactions: Transaction[]): Transaction[] {
   return [...transactions].sort((a, b) => {
     if (a.date !== b.date) {
@@ -84,4 +128,5 @@ export function sortTransactionsLatestFirst(transactions: Transaction[]): Transa
     return (b.id || '').localeCompare(a.id || '');
   });
 }
+
 

@@ -10,7 +10,7 @@ import { TransactionRow } from '@/components/transactions/TransactionRow';
 import { ChartTooltip } from '@/components/shared/ChartTooltip';
 import { useFinanceStore } from '@/store/financeStore';
 import { useUIStore } from '@/store/uiStore';
-import { formatCurrency, formatAxisCurrency } from '@/utils/format';
+import { formatCurrency, formatAxisCurrency, formatMonthLabel } from '@/utils/format';
 
 export function DashboardPage() {
   const { dashboard, fetchDashboard } = useFinanceStore();
@@ -18,8 +18,10 @@ export function DashboardPage() {
 
   useEffect(() => { fetchDashboard(); }, []);
 
+  const hasSetBudget = dashboard?.hasSetBudget ?? ((dashboard?.manualBudget ?? 0) > 0);
+  const monthLabel = dashboard?.selectedMonth ? formatMonthLabel(dashboard.selectedMonth) : 'This Month';
   const usedPct = dashboard && dashboard.monthlyBudget > 0
-    ? Math.round((dashboard.usedBudget / dashboard.monthlyBudget) * 100)
+    ? Math.min(100, Math.round((dashboard.usedBudget / dashboard.monthlyBudget) * 100))
     : 0;
 
   return (
@@ -30,34 +32,43 @@ export function DashboardPage() {
           <div className="flex items-start justify-between mb-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <p className="text-xs uppercase tracking-wide text-cream-50/50">Target Monthly Budget</p>
-                {dashboard?.isOverAllocated && (
-                  <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                    Over-Allocated (+{formatCurrency(dashboard.allocationMismatch)})
-                  </span>
-                )}
-                {dashboard?.isOverBudget && (
+                <p className="text-xs uppercase tracking-wide text-cream-50/50">{monthLabel} Target Budget</p>
+                {hasSetBudget && dashboard?.isOverBudget && (
                   <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-red-500/20 text-red-300 border border-red-500/30">
                     Over Budget
                   </span>
                 )}
               </div>
-              <p className="font-display text-3xl font-semibold text-cream-50">
-                {formatCurrency(dashboard?.monthlyBudget ?? 0)}
-              </p>
+
+              {hasSetBudget ? (
+                <p className="font-display text-3xl font-semibold text-cream-50">
+                  {formatCurrency(dashboard?.monthlyBudget ?? 0)}
+                </p>
+              ) : (
+                <p className="font-display text-xl font-semibold text-amber-300 mt-1">
+                  No monthly budget set, total {formatCurrency(dashboard?.totalSpentInMonthAllWallets ?? 0)} spent in this month.
+                </p>
+              )}
             </div>
-            <div className="leather-emboss-icon w-11 h-11 rounded-xl flex items-center justify-center text-gold-300">
+
+            <div className="leather-emboss-icon w-11 h-11 rounded-xl flex items-center justify-center text-gold-300 shrink-0">
               <PiggyBank size={20} />
             </div>
           </div>
-          <ProgressBar value={usedPct} tone={dashboard?.isOverBudget ? 'danger' : usedPct > 70 ? 'warning' : 'default'} />
-          <div className="flex justify-between mt-3 text-sm flex-wrap gap-2">
-            <span className="text-cream-50/60">Spent: {formatCurrency(dashboard?.usedBudget ?? 0)}</span>
-            {dashboard?.manualBudget && dashboard.manualBudget > 0 ? (
-              <span className="text-cream-50/45 text-xs">Wallets: {formatCurrency(dashboard.totalWalletAllocation)}</span>
-            ) : null}
-            <span className="text-gold-300 font-medium">Remaining: {formatCurrency(dashboard?.remainingBudget ?? 0)}</span>
-          </div>
+
+          {hasSetBudget ? (
+            <>
+              <ProgressBar value={usedPct} tone={dashboard?.isOverBudget ? 'danger' : usedPct > 70 ? 'warning' : 'default'} />
+              <div className="flex justify-between mt-3 text-sm flex-wrap gap-2">
+                <span className="text-cream-50/60">Spent: {formatCurrency(dashboard?.usedBudget ?? 0)}</span>
+                <span className="text-gold-300 font-medium">Remaining: {formatCurrency(dashboard?.remainingBudget ?? 0)}</span>
+              </div>
+            </>
+          ) : (
+            <p className="text-xs text-cream-50/50 mt-2">
+              Go to the Budget page to configure a target spending budget for {monthLabel}.
+            </p>
+          )}
         </LeatherCard>
 
         {/* Savings */}

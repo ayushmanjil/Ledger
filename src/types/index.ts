@@ -19,6 +19,7 @@ export interface Wallet {
   balance: number;
   allocatedAmount: number;
   includeInBudget: boolean;
+  optOutMonths?: string[]; // List of YYYY-MM months where wallet is opted out of monthly budget
   color: string;
   createdAt: string;
 }
@@ -76,15 +77,19 @@ export interface Debt {
 }
 
 export interface DashboardSummary {
+  selectedMonth: string;
+  hasSetBudget: boolean;
   monthlyBudget: number;
   manualBudget: number;
   totalWalletAllocation: number;
+  rolloverBalance: number;
   allocationMismatch: number;
   isOverAllocated: boolean;
   isOverBudget: boolean;
   usedBudget: number;
   remainingBudget: number;
   monthlyExpenses: number;
+  totalSpentInMonthAllWallets: number;
   totalSavings: number;
   weeklySpending: { day: string; amount: number }[];
   recentTransactions: Transaction[];

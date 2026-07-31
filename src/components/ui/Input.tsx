@@ -32,6 +32,14 @@ export function Field({ label, error, children }: FieldProps) {
 const baseStyle =
   'w-full rounded-xl bg-black/40 border border-white/10 px-3.5 py-2.5 text-sm text-cream-50 placeholder:text-cream-50/35 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] focus:border-gold-300/60 focus:ring-1 focus:ring-gold-300/30 focus:outline-none transition-all';
 
+function renderChildrenText(children: ReactNode): string {
+  if (children === null || children === undefined || typeof children === 'boolean') return '';
+  if (typeof children === 'string' || typeof children === 'number') return String(children);
+  if (Array.isArray(children)) return children.map(renderChildrenText).join('');
+  if (React.isValidElement(children)) return renderChildrenText((children.props as any).children);
+  return String(children);
+}
+
 // Helper to extract <option> children
 function parseOptions(children: ReactNode): { value: string; label: string }[] {
   const options: { value: string; label: string }[] = [];
@@ -39,9 +47,9 @@ function parseOptions(children: ReactNode): { value: string; label: string }[] {
     if (React.isValidElement(child)) {
       const props = child.props as any;
       if (child.type === 'option' || (typeof child.type === 'string' && child.type.toLowerCase() === 'option')) {
-        const val = String(props.value !== undefined ? props.value : props.children ?? '');
-        const lbl = String(props.children !== undefined ? props.children : props.value ?? '');
-        options.push({ value: val, label: lbl });
+        const val = String(props.value !== undefined ? props.value : (props.children ? renderChildrenText(props.children) : ''));
+        const lbl = props.children !== undefined ? renderChildrenText(props.children) : String(props.value ?? '');
+        options.push({ value: val, label: lbl.trim() });
       }
     }
   });

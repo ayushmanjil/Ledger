@@ -15,6 +15,7 @@ interface WalletDoc {
   balance: number;
   allocatedAmount: number;
   includeInBudget: boolean;
+  optOutMonths?: string[];
   color: string;
   createdAt?: unknown;
   updatedAt?: unknown;
@@ -28,6 +29,7 @@ function toWallet(id: string, d: WalletDoc): Wallet {
     balance: d.balance,
     allocatedAmount: d.allocatedAmount,
     includeInBudget: d.includeInBudget,
+    optOutMonths: d.optOutMonths ?? [],
     color: d.color,
     createdAt: tsToIso(d.createdAt),
   };
@@ -53,6 +55,7 @@ export const walletsService = {
       balance: input.balance ?? 0,
       allocatedAmount: input.allocatedAmount ?? 0,
       includeInBudget: input.includeInBudget ?? true,
+      optOutMonths: [],
       color,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -62,7 +65,7 @@ export const walletsService = {
   },
 
   async update(id: string, uid: string, input: Partial<{
-    name: string; type: WalletType; allocatedAmount: number; includeInBudget: boolean;
+    name: string; type: WalletType; allocatedAmount: number; includeInBudget: boolean; optOutMonths: string[];
   }>): Promise<Wallet> {
     const ref = doc(db, 'wallets', id);
     const snap = await getDoc(ref);
@@ -72,7 +75,24 @@ export const walletsService = {
     if (input.type !== undefined) patch.type = input.type;
     if (input.allocatedAmount !== undefined) patch.allocatedAmount = input.allocatedAmount;
     if (input.includeInBudget !== undefined) patch.includeInBudget = input.includeInBudget;
+    if (input.optOutMonths !== undefined) patch.optOutMonths = input.optOutMonths;
     await updateDoc(ref, patch);
+    const updated = await getDoc(ref);
+    return toWallet(id, updated.data() as WalletDoc);
+  },
+
+  async toggleOptOutMonth(id: string, uid: string, month: string): Promise<Wallet> {
+    const ref = doc(db, 'wallets', id);
+    const snap = await getDoc(ref);
+    if (!snap.exists() || (snap.data() as WalletDoc).userId !== uid) throw new Error('Wallet not found');
+    const data = snap.data() as WalletDoc;
+    const currentOptOut = data.optOutMonths ?? [];
+    const isOptedOut = currentOptOut.includes(month);
+    const nextOptOut = isOptedOut
+      ? currentOptOut.filter((m) => m !== month)
+      : [...currentOptOut, month];
+
+    await updateDoc(ref, { optOutMonths: nextOptOut, updatedAt: serverTimestamp() });
     const updated = await getDoc(ref);
     return toWallet(id, updated.data() as WalletDoc);
   },

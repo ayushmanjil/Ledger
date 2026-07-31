@@ -20,6 +20,7 @@ interface FinanceState {
   wallets: Wallet[];
   transactions: Transaction[];
   budget: Budget | null;
+  selectedMonth: string;
   goals: SavingsGoal[];
   debts: Debt[];
   dashboard: DashboardSummary | null;
@@ -27,9 +28,11 @@ interface FinanceState {
 
   fetchAll: (force?: boolean) => Promise<void>;
   fetchDashboard: () => Promise<void>;
+  setSelectedMonth: (month: string) => Promise<void>;
 
   addWallet: (data: { name: string; type: WalletType; allocatedAmount?: number; includeInBudget?: boolean; balance?: number }) => Promise<void>;
   updateWallet: (id: string, data: Partial<Wallet>) => Promise<void>;
+  toggleWalletMonthOptOut: (walletId: string, month: string) => Promise<void>;
   deleteWallet: (id: string) => Promise<void>;
   transferFunds: (fromWalletId: string, toWalletId: string, amount: number, note: string) => Promise<void>;
 
@@ -56,6 +59,7 @@ const emptyState = {
   wallets: [] as Wallet[],
   transactions: [] as Transaction[],
   budget: null as Budget | null,
+  selectedMonth: currentMonth(),
   goals: [] as SavingsGoal[],
   debts: [] as Debt[],
   dashboard: null as DashboardSummary | null,
@@ -67,7 +71,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   fetchAll: async (force = false) => {
     const uid = requireUid();
-    const { wallets, transactions } = get();
+    const { wallets, transactions, selectedMonth } = get();
 
     // Cache-first: if data is already loaded in memory and not explicitly forced,
     // refresh dashboard instantly without triggering 5 redundant Firestore network queries.
@@ -81,7 +85,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       const [wallets, transactions, budget, goals, debts] = await Promise.all([
         walletsService.listByUser(uid),
         transactionsService.listByUser(uid),
-        budgetsService.getOrCreate(uid, currentMonth()),
+        budgetsService.getOrCreate(uid, selectedMonth || currentMonth()),
         goalsService.listByUser(uid),
         debtsService.listByUser(uid),
       ]);
@@ -93,19 +97,39 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
 
   fetchDashboard: async () => {
-    const { wallets, transactions, goals, budget } = get();
-    set({ dashboard: computeDashboard(wallets, transactions, goals, budget) });
+    const { wallets, transactions, goals, budget, selectedMonth } = get();
+    set({ dashboard: computeDashboard(wallets, transactions, goals, budget, selectedMonth || currentMonth()) });
+  },
+
+  setSelectedMonth: async (month: string) => {
+    const uid = requireUid();
+    set({ selectedMonth: month, loading: true });
+    try {
+      const budget = await budgetsService.getOrCreate(uid, month);
+      set({ budget });
+      get().fetchDashboard();
+    } finally {
+      set({ loading: false });
+    }
   },
 
   addWallet: async (data) => {
     const uid = requireUid();
     const wallet = await walletsService.create(uid, data);
     set({ wallets: [...get().wallets, wallet] });
+    get().fetchDashboard();
   },
   updateWallet: async (id, data) => {
     const uid = requireUid();
     const wallet = await walletsService.update(id, uid, data);
     set({ wallets: get().wallets.map((w) => (w.id === id ? wallet : w)) });
+    get().fetchDashboard();
+  },
+  toggleWalletMonthOptOut: async (walletId, month) => {
+    const uid = requireUid();
+    const wallet = await walletsService.toggleOptOutMonth(walletId, uid, month);
+    set({ wallets: get().wallets.map((w) => (w.id === walletId ? wallet : w)) });
+    get().fetchDashboard();
   },
   deleteWallet: async (id) => {
     const uid = requireUid();

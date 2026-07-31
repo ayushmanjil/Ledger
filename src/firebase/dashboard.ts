@@ -10,22 +10,26 @@ function daysAgoIso(n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-function isBudgeted(walletId: string, wallets: Wallet[]): boolean {
-  const wallet = wallets.find((w) => w.id === walletId);
-  return wallet ? wallet.includeInBudget : true;
+export function isWalletIncludedInMonth(wallet: Wallet, month: string): boolean {
+  if (!wallet.includeInBudget) return false;
+  const optOuts = wallet.optOutMonths ?? [];
+  return !optOuts.includes(month);
 }
 
 /** Sums expenses for a user/month, excluding "Transfer" entries and
- * (optionally) wallets that opted out of the monthly budget. Mirrors
- * transaction.repository.sumExpensesForMonth from the original backend,
- * just computed over the already-fetched transaction list instead of a
- * SQL aggregate. */
+ * (optionally) wallets that opted out of the monthly budget. */
 function sumExpensesForMonth(transactions: Transaction[], wallets: Wallet[], month: string, onlyBudgetedWallets: boolean): number {
   return transactions
     .filter((t) => t.type === 'expense' && t.category !== 'Transfer' && t.date.startsWith(month))
-    .filter((t) => !onlyBudgetedWallets || isBudgeted(t.walletId, wallets))
+    .filter((t) => {
+      if (!onlyBudgetedWallets) return true;
+      const w = wallets.find((wal) => wal.id === t.walletId);
+      return w ? isWalletIncludedInMonth(w, month) : true;
+    })
     .reduce((sum, t) => sum + t.amount, 0);
 }
+
+
 
 /** Rule-based plain-language spending observations — a direct port of the
  * backend's insights.service.ts, run client-side over the already-loaded
@@ -83,19 +87,12 @@ function generateInsights(transactions: Transaction[], budget: Budget | null, wa
     insights.push(`${topDay![0]} was your highest spending day this week.`);
   }
 
-  const used = sumExpensesForMonth(transactions, [], currentMonth(), false);
+  const used = sumExpensesForMonth(transactions, wallets, currentMonth(), false);
   const dayOfMonth = new Date().getDate();
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
   const budgetAmount = budget?.amount ?? 0;
 
-  if (budgetAmount > 0) {
-    const totalWalletAllocation = wallets
-      .filter((w) => w.includeInBudget && w.allocatedAmount > 0)
-      .reduce((s, w) => s + w.allocatedAmount, 0);
-    if (totalWalletAllocation > budgetAmount) {
-      insights.push('Active wallet allocations exceed your target monthly budget.');
-    }
-  }
+
 
   if (budgetAmount > 0 && dayOfMonth > 3) {
     const projected = (used / dayOfMonth) * daysInMonth;
@@ -115,25 +112,29 @@ export function computeDashboard(
   transactions: Transaction[],
   goals: SavingsGoal[],
   budget: Budget | null,
+  targetMonth = currentMonth(),
 ): DashboardSummary {
-  const month = currentMonth();
-  
-  const totalWalletAllocation = wallets
-    .filter((w) => w.includeInBudget && w.allocatedAmount > 0)
-    .reduce((s, w) => s + w.allocatedAmount, 0);
-  
+  const month = targetMonth;
+
+  const budgetWallets = wallets.filter((w) => isWalletIncludedInMonth(w, month) && w.allocatedAmount > 0);
+  const totalWalletAllocation = budgetWallets.reduce((s, w) => s + w.allocatedAmount, 0);
+
   const manualBudget = budget?.amount ?? 0;
-  const effectiveTargetBudget = manualBudget > 0 ? manualBudget : totalWalletAllocation;
+  const hasSetBudget = manualBudget > 0;
+
+  const effectiveTargetBudget = hasSetBudget ? manualBudget : totalWalletAllocation;
   const monthlyBudget = effectiveTargetBudget;
+  const rolloverBalance = 0;
 
   const usedBudget = sumExpensesForMonth(transactions, wallets, month, true);
-  const monthlyExpenses = sumExpensesForMonth(transactions, wallets, month, false);
+  const totalSpentInMonthAllWallets = sumExpensesForMonth(transactions, wallets, month, false);
+  const monthlyExpenses = totalSpentInMonthAllWallets;
   const remainingBudget = Math.max(0, monthlyBudget - usedBudget);
   const totalSavings = goals.reduce((s, g) => s + g.savedAmount, 0);
 
-  const isOverAllocated = manualBudget > 0 && totalWalletAllocation > manualBudget;
+  const isOverAllocated = hasSetBudget && totalWalletAllocation > manualBudget;
   const allocationMismatch = totalWalletAllocation - effectiveTargetBudget;
-  const isOverBudget = effectiveTargetBudget > 0 && usedBudget > effectiveTargetBudget;
+  const isOverBudget = effectiveTargetBudget > 0 && usedBudget > monthlyBudget;
 
   const now = new Date();
   const startOfWeek = new Date(now);
@@ -153,18 +154,23 @@ export function computeDashboard(
   const recentTransactions = sortTransactionsLatestFirst(transactions).slice(0, 6);
 
   return {
+    selectedMonth: month,
+    hasSetBudget,
     monthlyBudget,
     manualBudget,
     totalWalletAllocation,
+    rolloverBalance,
     allocationMismatch,
     isOverAllocated,
     isOverBudget,
     usedBudget,
     remainingBudget,
     monthlyExpenses,
+    totalSpentInMonthAllWallets,
     totalSavings,
     weeklySpending,
     recentTransactions,
     insights: generateInsights(transactions, budget, wallets),
   };
 }
+
