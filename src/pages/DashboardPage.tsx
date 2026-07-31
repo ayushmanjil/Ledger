@@ -32,7 +32,9 @@ export function DashboardPage() {
           <div className="flex items-start justify-between mb-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <p className="text-xs uppercase tracking-wide text-cream-50/50">{monthLabel} Target Budget</p>
+                <p className="text-xs uppercase tracking-wide text-cream-50/50">
+                  {monthLabel} {hasSetBudget ? 'Target Budget' : 'Total Spent'}
+                </p>
                 {hasSetBudget && dashboard?.isOverBudget && (
                   <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-red-500/20 text-red-300 border border-red-500/30">
                     Over Budget
@@ -45,8 +47,8 @@ export function DashboardPage() {
                   {formatCurrency(dashboard?.monthlyBudget ?? 0)}
                 </p>
               ) : (
-                <p className="font-display text-xl font-semibold text-amber-300 mt-1">
-                  No monthly budget set, total {formatCurrency(dashboard?.totalSpentInMonthAllWallets ?? 0)} spent in this month.
+                <p className="font-display text-3xl font-semibold text-gold-300">
+                  {formatCurrency(dashboard?.totalSpentInMonthAllWallets ?? 0)}
                 </p>
               )}
             </div>
@@ -65,8 +67,8 @@ export function DashboardPage() {
               </div>
             </>
           ) : (
-            <p className="text-xs text-cream-50/50 mt-2">
-              Go to the Budget page to configure a target spending budget for {monthLabel}.
+            <p className="text-xs text-amber-200/80 mt-2">
+              No target budget set for {monthLabel}. Go to the Budget page to configure a spending limit.
             </p>
           )}
         </LeatherCard>

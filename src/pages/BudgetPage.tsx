@@ -189,16 +189,17 @@ export function BudgetPage() {
           <div className="flex items-start justify-between mb-2">
             <div>
               <p className="text-xs uppercase tracking-wide text-cream-50/50 mb-1">
-                {formatMonthLabel(month)} Budget Balance
+                {formatMonthLabel(month)} {hasSetBudget ? 'Budget Balance' : 'Total Spent'}
               </p>
               {hasSetBudget ? (
                 <div className="flex items-baseline gap-3">
-                  <p className="font-display text-3xl font-semibold text-gold-300">{formatCurrency(remaining)}</p>
+                  <p className="font-display text-3xl sm:text-4xl font-semibold text-gold-300">{formatCurrency(remaining)}</p>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 mt-1 text-amber-300">
-                  <AlertCircle size={20} />
-                  <span className="font-medium text-sm">No monthly budget set</span>
+                <div>
+                  <p className="font-display text-3xl sm:text-4xl font-semibold text-gold-300">
+                    {formatCurrency(totalSpentAllWallets)}
+                  </p>
                 </div>
               )}
             </div>
@@ -209,13 +210,16 @@ export function BudgetPage() {
 
           {!hasSetBudget ? (
             /* Widget Notice when budget wasn't set */
-            <div className="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="mt-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <p className="font-semibold text-amber-200 text-sm">
-                  No monthly budget set, total {formatCurrency(totalSpentAllWallets)} spent in this month.
-                </p>
-                <p className="text-xs text-amber-200/70 mt-1">
-                  Click "Set Budget" above or below to define a target budget for {formatMonthLabel(month)}.
+                <div className="flex items-center gap-2 text-amber-200">
+                  <AlertCircle size={16} className="text-amber-300 shrink-0" />
+                  <p className="font-semibold text-xs sm:text-sm">
+                    No monthly budget set for {formatMonthLabel(month)}
+                  </p>
+                </div>
+                <p className="text-[11px] text-amber-200/70 mt-1">
+                  Total {formatCurrency(totalSpentAllWallets)} spent across all wallets this month. Set a budget to track limits and remaining balance.
                 </p>
               </div>
               <GlassButton size="sm" variant="primary" onClick={handleOpenEdit} className="shrink-0 text-xs">
