@@ -25,7 +25,7 @@ interface FinanceState {
   dashboard: DashboardSummary | null;
   loading: boolean;
 
-  fetchAll: () => Promise<void>;
+  fetchAll: (force?: boolean) => Promise<void>;
   fetchDashboard: () => Promise<void>;
 
   addWallet: (data: { name: string; type: WalletType; allocatedAmount?: number; includeInBudget?: boolean; balance?: number }) => Promise<void>;
@@ -64,8 +64,17 @@ const emptyState = {
 export const useFinanceStore = create<FinanceState>((set, get) => ({
   ...emptyState,
 
-  fetchAll: async () => {
+  fetchAll: async (force = false) => {
     const uid = requireUid();
+    const { wallets, transactions } = get();
+
+    // Cache-first: if data is already loaded in memory and not explicitly forced,
+    // refresh dashboard instantly without triggering 5 redundant Firestore network queries.
+    if (!force && wallets.length > 0 && transactions.length > 0) {
+      get().fetchDashboard();
+      return;
+    }
+
     set({ loading: true });
     try {
       const [wallets, transactions, budget, goals, debts] = await Promise.all([

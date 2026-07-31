@@ -4,12 +4,20 @@
 .glass-surface {
   position: relative;
   background: linear-gradient(155deg, rgba(255,255,255,0.16), rgba(255,255,255,0.04));
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.22);
   box-shadow:
     0 4px 18px rgba(0,0,0,0.28),
     inset 0 1px 0 rgba(255,255,255,0.25);
+  transform: translateZ(0);
+}
+
+@media (max-width: 1024px) {
+  .glass-surface {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }
 
 .glass-surface::after {
