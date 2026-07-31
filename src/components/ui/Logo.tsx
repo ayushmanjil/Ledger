@@ -10,70 +10,92 @@ export function Logo({ className = "w-10 h-10", ...props }: SVGProps<SVGSVGEleme
       {...props}
     >
       <defs>
-        {/* Gold Foil Gradient */}
-        <linearGradient id="ledgerGoldFoil" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FFF2D1" />
-          <stop offset="25%" stopColor="#F5D07F" />
-          <stop offset="50%" stopColor="#C9943B" />
-          <stop offset="75%" stopColor="#FCE4A6" />
-          <stop offset="100%" stopColor="#8C5718" />
-        </linearGradient>
-
-        <linearGradient id="ledgerGoldLight" x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#D49A3C" />
-          <stop offset="50%" stopColor="#FFF5D6" />
-          <stop offset="100%" stopColor="#B57A24" />
-        </linearGradient>
-
-        {/* Deep Rich Leather Gradient */}
-        <radialGradient id="ledgerLeatherBg" cx="40%" cy="30%" r="75%">
-          <stop offset="0%" stopColor="#4A261A" />
-          <stop offset="50%" stopColor="#29130B" />
-          <stop offset="100%" stopColor="#0F0503" />
+        {/* Rich Brown Leather Main Gradient */}
+        <radialGradient id="brownLeatherMain" cx="35%" cy="30%" r="80%">
+          <stop offset="0%" stopColor="#8C4A23" />
+          <stop offset="45%" stopColor="#5C2D13" />
+          <stop offset="85%" stopColor="#361808" />
+          <stop offset="100%" stopColor="#1F0D04" />
         </radialGradient>
 
-        {/* Soft Drop Shadow Filter */}
-        <filter id="ledgerLogoShadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#000000" floodOpacity="0.6" />
+        {/* Brown Leather Flap / Pocket Gradient */}
+        <linearGradient id="brownLeatherPocket" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#733B1A" />
+          <stop offset="60%" stopColor="#47220C" />
+          <stop offset="100%" stopColor="#2B1306" />
+        </linearGradient>
+
+        {/* Leather Strap Gradient */}
+        <linearGradient id="brownLeatherStrap" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#A05629" />
+          <stop offset="50%" stopColor="#6E3516" />
+          <stop offset="100%" stopColor="#3D1B09" />
+        </linearGradient>
+
+        {/* Metallic Gold/Brass Clasp Gradient */}
+        <linearGradient id="goldClasp" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFF3D1" />
+          <stop offset="30%" stopColor="#F5CF7F" />
+          <stop offset="70%" stopColor="#C79339" />
+          <stop offset="100%" stopColor="#7A4F13" />
+        </linearGradient>
+
+        {/* Card Top Accent Gradient */}
+        <linearGradient id="cardAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#2D483A" />
+          <stop offset="100%" stopColor="#17271E" />
+        </linearGradient>
+
+        {/* Drop Shadow */}
+        <filter id="walletShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="5" stdDeviation="5" floodColor="#000000" floodOpacity="0.65" />
         </filter>
 
-        {/* Gold Glow Filter */}
-        <filter id="ledgerGoldGlow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="#F5D07F" floodOpacity="0.35" />
+        {/* Clasp Glow */}
+        <filter id="claspGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#F5CF7F" floodOpacity="0.4" />
         </filter>
       </defs>
 
-      <g filter="url(#ledgerLogoShadow)">
-        {/* Outer Leather Shield / Badge */}
-        <rect x="10" y="10" width="108" height="108" rx="28" fill="url(#ledgerLeatherBg)" stroke="url(#ledgerGoldFoil)" strokeWidth="2.5" />
+      <g filter="url(#walletShadow)">
+        {/* 1. Peeking Top Card / Cash note */}
+        <rect x="40" y="14" width="48" height="24" rx="5" fill="url(#cardAccent)" stroke="url(#goldClasp)" strokeWidth="1" />
+        {/* Gold chip / emblem on card */}
+        <rect x="46" y="20" width="10" height="8" rx="2" fill="url(#goldClasp)" />
+        <line x1="60" y1="22" x2="80" y2="22" stroke="#E0B872" strokeWidth="1.5" opacity="0.6" strokeDasharray="4 2" />
+        <line x1="60" y1="26" x2="74" y2="26" stroke="#E0B872" strokeWidth="1.5" opacity="0.4" />
 
-        {/* Inner Highlight Ring */}
-        <rect x="12" y="12" width="104" height="104" rx="26" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+        {/* 2. Main Wallet Body (Brown Leather) */}
+        <rect x="14" y="28" width="100" height="86" rx="22" fill="url(#brownLeatherMain)" stroke="#261005" strokeWidth="2" />
+        
+        {/* Top Highlight Bevel */}
+        <rect x="16" y="30" width="96" height="82" rx="20" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
 
-        {/* Precision Gold Stitching */}
-        <rect x="18" y="18" width="92" height="92" rx="21" fill="none" stroke="url(#ledgerGoldFoil)" strokeWidth="1.2" strokeDasharray="3.5 3" opacity="0.75" />
+        {/* Outer Perimeter Stitching (Beige Thread) */}
+        <rect x="21" y="35" width="86" height="72" rx="16" fill="none" stroke="#E6C594" strokeWidth="1.3" strokeDasharray="3.5 2.5" opacity="0.8" />
 
-        {/* Gold Corner Hardware Brackets */}
-        <path d="M 22 32 L 22 26 C 22 23.8 23.8 22 26 22 L 32 22" fill="none" stroke="url(#ledgerGoldFoil)" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M 106 32 L 106 26 C 106 23.8 104.2 22 102 22 L 96 22" fill="none" stroke="url(#ledgerGoldFoil)" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M 22 96 L 22 102 C 22 104.2 23.8 106 26 106 L 32 106" fill="none" stroke="url(#ledgerGoldFoil)" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M 106 96 L 106 102 C 106 104.2 104.2 106 102 106 L 96 106" fill="none" stroke="url(#ledgerGoldFoil)" strokeWidth="2.5" strokeLinecap="round" />
+        {/* 3. Front Leather Pocket / Curved Fold */}
+        <path d="M 14 60 C 35 54 65 54 114 60 L 114 92 C 114 104 104 114 92 114 L 36 114 C 24 114 14 104 14 92 Z" fill="url(#brownLeatherPocket)" stroke="#210D04" strokeWidth="1.5" />
 
-        {/* Center Emblem: Detailed Leather Ledger & Golden "L" Monogram + Coin Clasp */}
-        <g filter="url(#ledgerGoldGlow)">
-          {/* Leather Ledger Folder Outline */}
-          <path d="M 34 38 C 34 34 38 32 42 32 L 86 32 C 90 32 94 34 94 38 L 94 90 C 94 94 90 96 86 96 L 42 96 C 38 96 34 94 34 90 Z" fill="rgba(0,0,0,0.4)" stroke="url(#ledgerGoldFoil)" strokeWidth="1.8" />
-          
-          {/* Embossed Stitching Line across folder flap */}
-          <path d="M 34 48 L 94 48" stroke="url(#ledgerGoldFoil)" strokeWidth="1.2" strokeDasharray="2 2" opacity="0.75" />
+        {/* Pocket Top Edge Crease Line */}
+        <path d="M 14 60 C 35 54 65 54 114 60" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+        
+        {/* Pocket Curved Stitching */}
+        <path d="M 21 66 C 38 61 64 61 107 66 L 107 90 C 107 99 99 107 90 107 L 38 107 C 29 107 21 99 21 90 Z" fill="none" stroke="#E6C594" strokeWidth="1.3" strokeDasharray="3.5 2.5" opacity="0.85" />
 
-          {/* Golden "L" Serif Monogram */}
-          <path d="M 46 42 L 55 42 L 55 77 L 76 77 L 76 84 L 46 84 Z" fill="url(#ledgerGoldLight)" stroke="url(#ledgerGoldFoil)" strokeWidth="0.8" />
+        {/* 4. Leather Clasp Strap with Brass Snap Button */}
+        <g filter="url(#claspGlow)">
+          {/* Strap Body */}
+          <path d="M 72 58 L 114 58 C 117 58 119 60 119 63 L 119 79 C 119 82 117 84 114 84 L 72 84 C 65 84 60 79 60 71 C 60 63 65 58 72 58 Z" fill="url(#brownLeatherStrap)" stroke="#1A0A03" strokeWidth="1.5" />
 
-          {/* Gold Coin Clasp & Diamond Crest */}
-          <circle cx="76" cy="62" r="10" fill="url(#ledgerGoldFoil)" stroke="#29130B" strokeWidth="1.2" />
-          <circle cx="76" cy="62" r="6" fill="#29130B" />
-          <path d="M 76 58 L 78.5 62 L 76 66 L 73.5 62 Z" fill="url(#ledgerGoldLight)" />
+          {/* Strap Stitching */}
+          <path d="M 73 62 L 113 62 C 114.5 62 115.5 63 115.5 64.5 L 115.5 77.5 C 115.5 79 114.5 80 113 80 L 73 80 C 68 80 64 76 64 71 C 64 66 68 62 73 62 Z" fill="none" stroke="#E6C594" strokeWidth="1.1" strokeDasharray="3 2" opacity="0.85" />
+
+          {/* Gold / Brass Snap Button */}
+          <circle cx="76" cy="71" r="9" fill="url(#goldClasp)" stroke="#261005" strokeWidth="1" />
+          <circle cx="76" cy="71" r="6" fill="#2B1306" />
+          <circle cx="76" cy="71" r="3.5" fill="url(#goldClasp)" />
+          <circle cx="74.8" cy="69.8" r="1" fill="#FFFFFF" opacity="0.8" />
         </g>
       </g>
     </svg>
