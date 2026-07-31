@@ -5,6 +5,7 @@ import {
   LayoutDashboard, Wallet, PiggyBank, Target, Receipt, Handshake,
   CalendarDays, BarChart3, Settings, X, LogOut,
 } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import { useUIStore } from '@/store/uiStore';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/utils/cn';
@@ -29,9 +30,7 @@ function SidebarNavContent({ onClose }: { onClose?: () => void }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 px-1 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="leather-emboss-icon w-10 h-10 rounded-xl flex items-center justify-center">
-            <Wallet size={20} className="text-gold-300" />
-          </div>
+          <Logo className="w-10 h-10 shrink-0" />
           <div>
             <h1 className="font-display text-lg font-semibold leading-tight text-cream-50">Ledger</h1>
             <p className="text-[11px] text-cream-50/45 leading-tight">expense tracking, refined</p>

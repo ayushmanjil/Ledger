@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 
 export function AuthLayout({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
@@ -16,9 +16,9 @@ export function AuthLayout({ title, subtitle, children }: { title: string; subti
         <div className="relative z-10">
           <div className="flex flex-col items-center text-center mb-8">
             <motion.div
-              className="leather-emboss-icon w-14 h-14 rounded-2xl flex items-center justify-center mb-4 animate-float"
+              className="w-16 h-16 mb-4 animate-float flex items-center justify-center"
             >
-              <Wallet size={26} className="text-gold-300" />
+              <Logo className="w-16 h-16" />
             </motion.div>
             <h1 className="font-display text-2xl font-semibold text-cream-50">{title}</h1>
             <p className="text-sm text-cream-50/55 mt-1">{subtitle}</p>
