@@ -19,6 +19,23 @@ export function formatCurrency(paise: number, currency = 'INR'): string {
   return `${symbol}${formatted}`;
 }
 
+export function formatAxisCurrency(paise: number, currency = 'INR'): string {
+  const symbol = CURRENCY_SYMBOLS[currency] ?? currency + ' ';
+  const rupees = paise / 100;
+  const abs = Math.abs(rupees);
+
+  if (abs === 0) return `${symbol}0`;
+  if (abs >= 10_00_000) {
+    const formatted = (rupees / 10_00_000).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+    return `${symbol}${formatted}M`;
+  }
+  if (abs >= 1_000) {
+    const formatted = (rupees / 1_000).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+    return `${symbol}${formatted}k`;
+  }
+  return `${symbol}${Math.round(rupees)}`;
+}
+
 export function toPaise(rupees: number): number {
   return Math.round(rupees * 100);
 }

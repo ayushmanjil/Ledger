@@ -10,7 +10,7 @@ import { TransactionRow } from '@/components/transactions/TransactionRow';
 import { ChartTooltip } from '@/components/shared/ChartTooltip';
 import { useFinanceStore } from '@/store/financeStore';
 import { useUIStore } from '@/store/uiStore';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatAxisCurrency } from '@/utils/format';
 
 export function DashboardPage() {
   const { dashboard, fetchDashboard } = useFinanceStore();
@@ -96,8 +96,16 @@ export function DashboardPage() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis dataKey="day" tick={{ fill: 'rgba(245,235,221,0.5)', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'rgba(245,235,221,0.4)', fontSize: 11 }} axisLine={false} tickLine={false} width={40} />
-                <Tooltip content={<ChartTooltip />} />
+                <YAxis
+                  tick={{ fill: 'rgba(245,235,221,0.5)', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={55}
+                  tickFormatter={(v) => formatAxisCurrency(v)}
+                  domain={[0, 'auto']}
+                  allowDecimals={false}
+                />
+                <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(255, 255, 255, 0.15)', strokeWidth: 1, strokeDasharray: '3 3' }} />
                 <Area type="monotone" dataKey="amount" name="Spent" stroke="#E0B872" strokeWidth={2.5} fill="url(#weeklyFill)" />
               </AreaChart>
             </ResponsiveContainer>

@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect } from 'react';
 import { DesktopSidebar, MobileSidebarDrawer } from './Sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, ArrowDownCircle, ArrowUpCircle, Sparkles } from 'lucide-react';
+import { Menu, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useUIStore } from '@/store/uiStore';
 import { useFinanceStore } from '@/store/financeStore';
@@ -13,7 +13,7 @@ import { cn } from '@/utils/cn';
 
 export function AppShell({ title, children, actions }: { title: string; children: ReactNode; actions?: ReactNode }) {
   const location = useLocation();
-  const { activeModal, openModal, closeModal, setSidebarOpen, cardStyle, toggleCardStyle } = useUIStore();
+  const { activeModal, openModal, closeModal, setSidebarOpen } = useUIStore();
   const { fetchAll } = useFinanceStore();
 
   useEffect(() => { fetchAll(); }, []);
@@ -53,22 +53,8 @@ export function AppShell({ title, children, actions }: { title: string; children
                 <h1 className="font-display text-base sm:text-lg font-semibold text-cream-50 truncate">{title}</h1>
               </div>
 
-              {/* Right: Leather/Glass style toggle + income/expense quick buttons OR per-page actions */}
+              {/* Right: income/expense quick buttons OR per-page actions */}
               <div className="flex items-center gap-1.5 shrink-0">
-                {/* UI Style Toggle button (Leather ⇄ Glass) */}
-                <button
-                  onClick={toggleCardStyle}
-                  aria-label="Toggle Leather/Glass UI"
-                  title={`Switch to ${cardStyle === 'leather' ? 'Glass UI' : 'Leather UI'}`}
-                  className={cn(
-                    "p-1.5 rounded-xl transition-all active:scale-95 text-xs font-semibold flex items-center justify-center border",
-                    cardStyle === 'glass'
-                      ? "text-gold-300 bg-gold-300/15 border-gold-300/30"
-                      : "text-cream-50/70 hover:text-cream-50 hover:bg-white/10 border-transparent"
-                  )}
-                >
-                  <Sparkles size={16} />
-                </button>
 
                 {actions ? (
                   /* Per-page contextual actions (e.g. "New Wallet", "Add Goal") */

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Wallet, PiggyBank, Target, Receipt, Handshake,
-  CalendarDays, BarChart3, Settings, X, LogOut, Sparkles,
+  CalendarDays, BarChart3, Settings, X, LogOut,
 } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
 import { useAuthStore } from '@/store/authStore';
@@ -23,7 +23,6 @@ const NAV_ITEMS = [
 
 function SidebarNavContent({ onClose }: { onClose?: () => void }) {
   const { user, logout } = useAuthStore();
-  const { cardStyle, toggleCardStyle } = useUIStore();
 
   return (
     <div className="relative z-10 flex flex-col h-full overflow-hidden">
@@ -89,18 +88,6 @@ function SidebarNavContent({ onClose }: { onClose?: () => void }) {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <button
-            onClick={toggleCardStyle}
-            className={cn(
-              'p-2 rounded-xl transition-all active:scale-95 flex items-center gap-1 text-xs font-semibold',
-              cardStyle === 'glass'
-                ? 'text-gold-300 bg-gold-300/15 border border-gold-300/30'
-                : 'text-cream-50/60 hover:text-cream-50 hover:bg-white/10'
-            )}
-            title={`Switch to ${cardStyle === 'leather' ? 'Glass UI' : 'Leather UI'}`}
-          >
-            <Sparkles size={16} />
-          </button>
           <button onClick={logout} className="p-2 text-cream-50/60 hover:text-cream-50 transition-colors" title="Logout">
             <LogOut size={16} />
           </button>

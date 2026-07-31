@@ -7,9 +7,19 @@ import { AppShell } from '@/components/layout/AppShell';
 import { LeatherCard } from '@/components/ui/LeatherCard';
 import { ChartTooltip, CHART_COLORS } from '@/components/shared/ChartTooltip';
 import { useFinanceStore } from '@/store/financeStore';
-import { formatCurrency } from '@/utils/format';
+import { formatAxisCurrency } from '@/utils/format';
 
-const AXIS_STYLE = { fill: 'rgba(245,235,221,0.5)', fontSize: 12 };
+const AXIS_STYLE = { fill: 'rgba(245,235,221,0.5)', fontSize: 11 };
+
+const Y_AXIS_COMMON = {
+  tick: AXIS_STYLE,
+  axisLine: false,
+  tickLine: false,
+  width: 55,
+  tickFormatter: (v: number) => formatAxisCurrency(v),
+  domain: [0, 'auto'] as [number, 'auto'],
+  allowDecimals: false,
+};
 
 export function AnalyticsPage() {
   const { transactions, wallets, goals } = useFinanceStore();
@@ -95,8 +105,8 @@ export function AnalyticsPage() {
             <defs><linearGradient id="ms" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#C87137" stopOpacity={0.5} /><stop offset="100%" stopColor="#C87137" stopOpacity={0} /></linearGradient></defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
             <XAxis dataKey="month" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-            <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={40} />
-            <Tooltip content={<ChartTooltip />} />
+            <YAxis {...Y_AXIS_COMMON} />
+            <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(255, 255, 255, 0.15)', strokeWidth: 1, strokeDasharray: '3 3' }} />
             <Area type="monotone" dataKey="amount" name="Spent" stroke="#C87137" strokeWidth={2.5} fill="url(#ms)" />
           </AreaChart>
         </ChartCard>
@@ -105,8 +115,8 @@ export function AnalyticsPage() {
           <BarChart data={weeklySpending}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
             <XAxis dataKey="day" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-            <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={40} />
-            <Tooltip content={<ChartTooltip />} />
+            <YAxis {...Y_AXIS_COMMON} />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255, 255, 255, 0.04)' }} />
             <Bar dataKey="amount" name="Spent" fill="#E0B872" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ChartCard>
@@ -115,8 +125,8 @@ export function AnalyticsPage() {
           <BarChart data={incomeVsExpense}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
             <XAxis dataKey="month" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-            <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={40} />
-            <Tooltip content={<ChartTooltip />} />
+            <YAxis {...Y_AXIS_COMMON} />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255, 255, 255, 0.04)' }} />
             <Legend wrapperStyle={{ fontSize: 12, color: 'rgba(245,235,221,0.6)' }} />
             <Bar dataKey="income" name="Income" fill="#8A9463" radius={[6, 6, 0, 0]} />
             <Bar dataKey="expense" name="Expense" fill="#C68958" radius={[6, 6, 0, 0]} />
@@ -147,8 +157,8 @@ export function AnalyticsPage() {
           <LineChart data={savingsGrowth}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
             <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-            <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={40} />
-            <Tooltip content={<ChartTooltip />} />
+            <YAxis {...Y_AXIS_COMMON} />
+            <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(255, 255, 255, 0.15)', strokeWidth: 1, strokeDasharray: '3 3' }} />
             <Line type="monotone" dataKey="total" name="Total Saved" stroke="#E0B872" strokeWidth={2.5} dot={{ fill: '#E0B872', r: 4 }} />
           </LineChart>
         </ChartCard>
@@ -157,8 +167,8 @@ export function AnalyticsPage() {
           <LineChart data={avgDailySpending}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
             <XAxis dataKey="month" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-            <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={40} />
-            <Tooltip content={<ChartTooltip />} />
+            <YAxis {...Y_AXIS_COMMON} />
+            <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(255, 255, 255, 0.15)', strokeWidth: 1, strokeDasharray: '3 3' }} />
             <Line type="monotone" dataKey="avg" name="Avg / day" stroke="#C87137" strokeWidth={2.5} dot={{ fill: '#C87137', r: 4 }} />
           </LineChart>
         </ChartCard>
@@ -167,8 +177,8 @@ export function AnalyticsPage() {
           <BarChart data={yearlyComparison}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
             <XAxis dataKey="year" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-            <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={40} />
-            <Tooltip content={<ChartTooltip />} />
+            <YAxis {...Y_AXIS_COMMON} />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255, 255, 255, 0.04)' }} />
             <Bar dataKey="amount" name="Spent" fill="#8A9463" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ChartCard>
