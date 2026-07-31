@@ -21,7 +21,10 @@ export function AppShell({ title, children, actions }: { title: string; children
   const { activeModal, openModal, closeModal, setSidebarOpen } = useUIStore();
   const { fetchAll } = useFinanceStore();
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => {
+    fetchAll();
+    document.title = 'Ledger';
+  }, []);
 
   useKeyboardShortcuts({
     onAddIncome: () => openModal('add-income'),

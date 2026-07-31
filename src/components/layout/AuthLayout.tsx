@@ -1,8 +1,11 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Logo } from '@/components/ui/Logo';
 
 export function AuthLayout({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+  useEffect(() => {
+    document.title = 'Ledger';
+  }, []);
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-leather-grad opacity-40" />
