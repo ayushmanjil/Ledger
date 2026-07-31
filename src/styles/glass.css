@@ -15,8 +15,11 @@
 
 @media (max-width: 1024px) {
   .glass-surface {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    /* No blur on mobile — pure GPU cost with negligible visual benefit.
+       Replace with a solid semi-opaque surface that looks clean. */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(28, 14, 7, 0.88);
   }
 }
 

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -20,6 +20,33 @@ const Y_AXIS_COMMON = {
   domain: [0, 'auto'] as [number, 'auto'],
   allowDecimals: false,
 };
+
+/** Only renders chart SVG when the card enters the viewport.
+ *  Once visible it stays rendered (disconnect after first intersect). */
+function useInView(threshold = 0.05) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === 'undefined') { setInView(true); return; }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, inView };
+}
 
 export function AnalyticsPage() {
   const { transactions, wallets, goals } = useFinanceStore();
@@ -188,12 +215,17 @@ export function AnalyticsPage() {
 }
 
 function ChartCard({ title, children }: { title: string; children: React.ReactElement }) {
+  const { ref, inView } = useInView();
   return (
     <LeatherCard>
       <p className="text-xs uppercase tracking-wide text-cream-50/50 mb-4">{title}</p>
-      <div className="h-48 sm:h-64">
-        <ResponsiveContainer width="100%" height="100%">{children}</ResponsiveContainer>
+      <div className="h-48 sm:h-64" ref={ref}>
+        {inView && (
+          <ResponsiveContainer width="100%" height="100%">{children}</ResponsiveContainer>
+        )}
       </div>
     </LeatherCard>
   );
 }
+
+

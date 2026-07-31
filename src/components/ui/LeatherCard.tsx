@@ -29,20 +29,40 @@ export function LeatherCard({
   children,
   ...props
 }: LeatherCardProps) {
+  const cardClassName = cn(
+    variant === 'olive' ? 'leather-surface--olive' : '',
+    'leather-surface',
+    paddingMap[padding],
+    className
+  );
+  const inner = (
+    <>
+      {stitched && <div className="leather-stitch" />}
+      <div className={cn('relative z-10', contentClassName)}>{children}</div>
+    </>
+  );
+
+  // On touch/mobile: plain div — zero Framer Motion event listener or layer overhead.
+  // On desktop (mouse): motion.div with hover lift spring.
+  if (isTouchPrimary) {
+    return (
+      <div
+        className={cardClassName}
+        {...(props as React.HTMLAttributes<HTMLDivElement>)}
+      >
+        {inner}
+      </div>
+    );
+  }
+
   return (
     <motion.div
-      className={cn(
-        variant === 'olive' ? 'leather-surface--olive' : '',
-        'leather-surface',
-        paddingMap[padding],
-        className
-      )}
-      whileHover={hoverLift && !isTouchPrimary ? { y: -4 } : undefined}
+      className={cardClassName}
+      whileHover={hoverLift ? { y: -4 } : undefined}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       {...props}
     >
-      {stitched && <div className="leather-stitch" />}
-      <div className={cn("relative z-10", contentClassName)}>{children}</div>
+      {inner}
     </motion.div>
   );
 }
