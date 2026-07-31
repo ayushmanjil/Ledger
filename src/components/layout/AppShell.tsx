@@ -99,12 +99,11 @@ export function AppShell({ title, children, actions }: { title: string; children
           <div className="flex-1 overflow-y-auto min-w-0 no-scrollbar flex flex-col">
             <main className="px-3 sm:px-6 lg:px-8 py-3 sm:py-4 pb-10 max-w-[1400px] mx-auto w-full relative flex-1 flex flex-col">
 
-              {/* Desktop-only page-level actions float at top-right */}
-              {actions && (
-                <div className="hidden lg:flex absolute top-4 right-8 z-10 items-center gap-3">
-                  {actions}
-                </div>
-              )}
+              {/* Desktop-only Page Header (Title + Actions) */}
+              <div className="hidden lg:flex items-center justify-between mb-5">
+                <h1 className="font-display text-2xl font-semibold text-cream-50">{title}</h1>
+                {actions && <div className="flex items-center gap-3">{actions}</div>}
+              </div>
 
               {isTouch ? (
                 /* On touch/mobile: plain div — zero JS animation, no will-change,
