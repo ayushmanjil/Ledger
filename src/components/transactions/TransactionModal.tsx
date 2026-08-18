@@ -173,8 +173,8 @@ export function TransactionModal({ open, onClose, type, editing }: TransactionMo
           <Input type="date" value={watch('date')} {...register('date', { required: true })} />
         </Field>
 
-        <Field label="Note (optional)">
-          <Input placeholder="What was this for?" {...register('note')} />
+        <Field label="Expense Name (optional)">
+          <Input placeholder="e.g. Coffee, Lunch... (optional)" {...register('note')} />
         </Field>
 
         <GlassButton type="submit" variant="primary" full disabled={isSubmitting}>

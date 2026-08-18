@@ -92,6 +92,23 @@ export async function login(username: string, password: string): Promise<{ user:
   }
 }
 
+export async function loginAsDemo(): Promise<{ user: User }> {
+  const demoUsername = 'demo';
+  const demoPassword = 'demouser123';
+  try {
+    return await login(demoUsername, demoPassword);
+  } catch {
+    try {
+      return await register('Demo User', demoUsername, demoPassword);
+    } catch {
+      const randomTag = Math.floor(1000 + Math.random() * 9000);
+      const uniqueUsername = `demo_${randomTag}`;
+      return await register('Demo User', uniqueUsername, demoPassword);
+    }
+  }
+}
+
+
 export async function fetchMe(): Promise<User> {
   const current = auth.currentUser;
   if (!current) throw new Error('Not signed in');

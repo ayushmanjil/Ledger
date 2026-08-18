@@ -27,9 +27,9 @@ export function AddFullDayModal({ open, onClose }: { open: boolean; onClose: () 
 
   const onSubmit = async (values: FormValues) => {
     const rows = values.rows
-      .filter((r) => r.name.trim() && Number(r.amount) > 0 && r.walletId)
+      .filter((r) => Number(r.amount) > 0 && r.walletId)
       .map((r) => ({
-        note: r.name,
+        note: r.name.trim(),
         category: r.category,
         amount: toPaise(Number(r.amount)),
         walletId: r.walletId,
@@ -56,7 +56,7 @@ export function AddFullDayModal({ open, onClose }: { open: boolean; onClose: () 
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-cream-50/50 bg-white/5">
-                <th className="px-3 py-2.5 font-medium">Expense Name</th>
+                <th className="px-3 py-2.5 font-medium">Expense Name <span className="font-normal text-cream-50/40">(optional)</span></th>
                 <th className="px-3 py-2.5 font-medium">Category</th>
                 <th className="px-3 py-2.5 font-medium">Amount (₹)</th>
                 <th className="px-3 py-2.5 font-medium">Wallet</th>
@@ -67,7 +67,7 @@ export function AddFullDayModal({ open, onClose }: { open: boolean; onClose: () 
               {fields.map((field, idx) => (
                 <tr key={field.id} className="border-t border-white/5">
                   <td className="px-3 py-2">
-                    <Input placeholder="e.g. Lunch" {...register(`rows.${idx}.name` as const)} />
+                    <Input placeholder="e.g. Lunch (optional)" {...register(`rows.${idx}.name` as const)} />
                   </td>
                   <td className="px-3 py-2 min-w-[140px]">
                     <Select {...register(`rows.${idx}.category` as const)}>
